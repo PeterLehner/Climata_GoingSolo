@@ -14,7 +14,5 @@ def ShowZipCodes():
 
     return(df_working)
 
-
-
 if __name__ == '__main__':
     app.run(debug=True)

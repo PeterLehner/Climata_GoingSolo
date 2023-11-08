@@ -109,7 +109,6 @@ def CallHeatPumpAPI():
 
     df_working['cost_before_heatpump'] = df_working["status_quo_electricity"] * df_working['electricity_price'] + df_working["status_quo_natgas"] * df_working['natgas_price_$_per_1000_cf_2021']/10 #Divide by 10 to convert to $/100cf
     df_working['cost_after_heatpump'] = df_working["heatpump_electricity"] * df_working['electricity_price']
-
     df_working['heatpump_savings'] = df_working['cost_before_heatpump'] - df_working['cost_after_heatpump']
 
     print(df_working['heatpump_savings'])

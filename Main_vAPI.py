@@ -6,61 +6,18 @@ import time
 from Heatpumps import CallHeatPumpAPI
 from MergeCachedKelvinOutput import MergeCachedKelvinOutput
 
-def SelectZipCodes(zip_query): 
-    df_working = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Zips/zip_lat_lon_state.csv')
-
-    df_working['zip'] = [str(x).zfill(5) for x in df_working['zip']] # Make all zips string and 5 characters
-
-    #Take the first N rows of the input file
-    if TAKE_SAMPLE == True:
-        df_working = df_working.head(NUMBER_OF_ZIPS)
-    
+def PullFromDBmain(zip_query): 
+    zip_query = [int(zip_query)] #make zip_query a number. Sometimes it comes in as a string, or has a leading zero
+    df_working = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/database_main.csv')
+    df_working = df_working[df_working['zip'].isin(zip_query)] #Only keep the rows where the zip code is in the list of zip codes
     return(df_working)
 
-# GET Solar influx from NREL or Cache
-
-def MergeCachedNRELoutput(): 
-    df_working = pd.read_csv('0_zips_to_run.csv')
-
-    df_output_annual = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/NREL/NREL_API_cache.csv')
-    
-    #only read in the columns we need
-    df_output_annual = df_output_annual[['zip','output_annual']]
-
-    #round output_annual to nearest integer
-    df_output_annual['output_annual'] = df_output_annual['output_annual'].round(0)
-
-    df_working = pd.merge(df_working, df_output_annual, left_on='zip', right_on='zip', how='left')
-
-    return(df_working)
-
-#Get demand
-
-def MergeZipLevelDemand(electric_bill_query):
-    df_working = pd.read_csv('0_output.csv')
-    df_working['zip'] = df_working['zip'].apply(str).str.zfill(5)
-
-    df_electricity_prices = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/zip_to_electricity_price.csv') #Read in zip level demand data   
-    df_electricity_prices['zip'] = df_electricity_prices['zip'].apply(str).str.zfill(5) #clean up zip codes 
-    df_working = pd.merge(df_working, df_electricity_prices, left_on='zip', right_on='zip', how='left')
-    
-    # Prices have gone up a lot since these prices were collected.  Therefore we should use them as a relative metric
-    # EIA projects much higher prices for 2023 and 2024: https://www.eia.gov/outlooks/steo/report/electricity.php
-    # Dividing their average by our average  $0.1565/$0.1185 = 1.32
-    df_working['electricity_price'] = df_working['electricity_price'] * 1.32 # Account for 3 years of inflation 
-
-    # STATE LEVEL DEMAND - less precise, more smooth
-    df_electricity_demand = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/state_to_avg_electricity_use.csv') #Read in zip level demand data   
-    df_electricity_demand = df_electricity_demand[['state','avg_electricity_use_kwh']]
-
-    df_working = pd.merge(df_working, df_electricity_demand, left_on='state', right_on='state', how='left')
-
-    df_working['avg_electric_bill_monthly'] = df_working['avg_electricity_use_kwh'] * df_working['electricity_price'] / 12
-
-    #NEW CODE FOR API - Want to allow for the user to input their own electric bill
+def MergeZipLevelDemand(df_working, electric_bill_query):        
+    #Calcuate a homeowners electric use based on their electric bill. Else, use the average electric use for the zip code
     if electric_bill_query is not None:
-        df_working['avg_electricity_use_kwh'] = (12*electric_bill_query)/df_working['price']
-
+        df_working['electricity_use_kwh'] = (12*electric_bill_query)/df_working['price']
+    else:
+        df_working['electricity_use_kwh'] = df_working['avg_electricity_use_kwh']
     return(df_working)
 
 
@@ -69,24 +26,15 @@ def MergeZipLevelDemand(electric_bill_query):
 # Call CallHeatPumpAPI() 
 # Call MergeCachedKelvinOutput() 
 
-#Figure out system size
-
-def CalculateSizingRatio():    
-    df_working = pd.read_csv('0_output.csv')
-
-    df_working['sizing_ratio'] = 1/df_working['output_annual'] # Because output_annual here is the output for a 1 KW system.
-    df_working['capacity_factor'] = df_working['output_annual']/8760 # Because output_annual here is the output for a 1 KW system, 8760 kwh is ideal
-
-    df_working.to_csv('0_output.csv', index=False)
-    print('CalculateSizingRatio: 0_output\n')
+############################## THIS IS WHERE THINGS DEVIATE BASED ON WHETHER THEY ARE GETTING A HEAT PUMP ##############################
 
 def CalculateRecommendedSystemSize(): 
     df_working = pd.read_csv('0_output.csv')
 
     if net_of_heatpumps == True:
-        df_working['avg_electricity_use_kwh'] = df_working['avg_electricity_use_kwh'] + df_working["heatpump_electricity"]
+        df_working['electricity_use_kwh'] = df_working['electricity_use_kwh'] + df_working["heatpump_electricity"]
         df_working['Heat pump'] = 'Yes'
-        df_working['avg_electric_bill_monthly'] = df_working['avg_electricity_use_kwh']*df_working['electricity_price']/12
+        df_working['avg_electric_bill_monthly'] = df_working['electricity_use_kwh']*df_working['electricity_price']/12
     else:
         df_working['Heat pump'] = 'No'
 
@@ -98,12 +46,12 @@ def CalculateRecommendedSystemSize():
     df_working = pd.merge(df_working, df_incentives, on='state', how='left')
 
     #calculate how much to scale down the size of the solar array IF the system is paired with a battery (in the case of NO net metering)
-    df_working['EnergyUse_to_BatterySize'] = df_working['avg_electricity_use_kwh']/(BATTERY_COUNT*13.5*1000) # 13.5 kWh is capacity of a Tesla Powerwall
+    df_working['EnergyUse_to_BatterySize'] = df_working['electricity_use_kwh']/(BATTERY_COUNT*13.5*1000) # 13.5 kWh is capacity of a Tesla Powerwall
     df_working['solarWbattery_system_scaling_factor'] = -0.2017*df_working['EnergyUse_to_BatterySize'] + 0.8646 # This linear equation from Battery_sensitivity_analysis.xlsx
     df_working.loc[df_working['net_metering'] == 1, 'solarWbattery_system_scaling_factor'] = 1 # if the value of df_working['net_metering'] == 1, then reset the scaling factor should be 1 (i.e., no scaling)
 
     #calculate the recommended system size in KW. This is the average energy use in the zip code * the sizing ratio and, IF the battery is included, the solarWbattery_system_scaling_factor
-    df_working['recommended_system_size_(KW)'] = df_working['solarWbattery_system_scaling_factor']*df_working['avg_electricity_use_kwh']*df_working['sizing_ratio'] # e.g.: 10,000 KWH * (1 KW / 1000 KWH) = 10 KW.   10 KW * (1000 KWH / 1 KW) = 10,000 KWH
+    df_working['recommended_system_size_(KW)'] = df_working['solarWbattery_system_scaling_factor']*df_working['electricity_use_kwh']*df_working['sizing_ratio'] # e.g.: 10,000 KWH * (1 KW / 1000 KWH) = 10 KW.   10 KW * (1000 KWH / 1 KW) = 10,000 KWH
 
     #take the mininum of the recommended system size and 15 KW because roofs can't fit large arrays
     df_working['recommended_system_size_(KW)'] = df_working['recommended_system_size_(KW)'].apply(lambda x: min(x, 15))
@@ -116,18 +64,8 @@ def CalculateRecommendedSystemSize():
 # Merge costs and incentives
 
 def MergeCosts(): 
-    #df_working = pd.read_csv('1_output.csv')
-    df_working = pd.read_csv('1_output.csv')
-
-    #This file adds a column with the average price per KW for each state
-    df_costs = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Cost/state_to_cost_per_kw.csv', usecols=['state','avg_cost_per_kw'])
-
-    df_working = pd.merge(df_working, df_costs, on='state', how='left')
-
     df_working['estimated_cost'] = df_working['avg_cost_per_kw']*df_working['recommended_system_size_(KW)']
 
-    df_working.to_csv('1_output.csv', index=False)
-    print('MergeCosts: 1_output\n')
 
 def MergeIncentivesCalculateGrossSavings(): 
     df_working = pd.read_csv('1_output.csv')
@@ -238,7 +176,7 @@ def CalculateProductionSavings():
     # --------------------------------------------- CALCULATE PRODUCTION SAVINGS: SAVINGS FROM NET METERING & SRECs ---------------------------------------------
 
     # net metering does not apply to excess production above annual demand. SRECs apply to ALL production
-    df_working['eligible_production'] = df_working[['system_output_annual','avg_electricity_use_kwh']].min(axis=1)
+    df_working['eligible_production'] = df_working[['system_output_annual','electricity_use_kwh']].min(axis=1)
 
     # We multiply by 'electricity_price' even where net metering is 0, bc we assume that they get a battery savings are equivalent to the forgone electricity costs
     # FOR STATES WIHTOUT NET METERING: change to just include first half of this equation, ignore SRECs, bc power not being provided to grid, just straight to battery
@@ -367,7 +305,7 @@ def RoundFields():
     df_working = pd.read_csv('1_output.csv')
 
     df_working['capacity_factor']              = df_working['capacity_factor'].round(3)
-    df_working['avg_electricity_use_kwh']      = df_working['avg_electricity_use_kwh'].round()
+    df_working['electricity_use_kwh']      = df_working['electricity_use_kwh'].round()
     df_working['avg_electric_bill_monthly']    = df_working['avg_electric_bill_monthly'].round()
     df_working['recommended_system_size_(KW)'] = df_working['recommended_system_size_(KW)'].round(1)
     df_working['electricity_price']            = df_working['electricity_price'].round(3)
