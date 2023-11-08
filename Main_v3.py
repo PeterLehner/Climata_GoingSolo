@@ -7,9 +7,9 @@ from Heatpumps import CallHeatPumpAPI
 from MergeCachedKelvinOutput import MergeCachedKelvinOutput
 
 def SelectZipCodes(): # done
-    INPUT_DF = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Zips/zip_lat_lon_state.csv')
-    #INPUT_DF = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/USB_zips.csv')
-    #INPUT_DF = pd.read_csv('/Users/peterlehner/Library/CloudStorage/Dropbox/Climata_nonGit/Data/Zips/HSFCU_zips.csv')
+    INPUT_DF = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Zips/zip_lat_lon_state.csv')
+    #INPUT_DF = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/USB_zips.csv')
+    #INPUT_DF = pd.read_csv('/Users/peterlehner/Library/CloudStorage/Dropbox/Climata_GoingSolo/Data/Zips/HSFCU_zips.csv')
 
     INPUT_DF = INPUT_DF[INPUT_DF['state'].isin(APPLICAPLE_STATES)] # Only keep zips in states relevant to the selected bank
     
@@ -150,7 +150,7 @@ def MergeCachedNRELoutput(): # TO DO  TO DO  TO DO  TO DO  TO DO  TO DO  TO DO  
     df_pvwatts_input = pd.read_csv('0_zips_to_run.csv')
 
     #merge df_pvwatts_input with Output_annual_WAORCANVNYNJPA.csv on "zip"
-    df_output_annual = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/NREL/NREL_API_cache.csv')
+    df_output_annual = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/NREL/NREL_API_cache.csv')
     
     #only read in the columns we need
     df_output_annual = df_output_annual[['zip','output_annual']]
@@ -170,7 +170,7 @@ def MergeZipLevelDemand_OLD(): # done
     df_working = pd.read_csv('0_output.csv')
     df_working['zip'] = df_working['zip'].apply(str).str.zfill(5)
 
-    df_electricity_prices = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Energy/zip_to_avg_energy_bill.csv') #Read in zip level demand data   
+    df_electricity_prices = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/zip_to_avg_energy_bill.csv') #Read in zip level demand data   
     df_electricity_prices['zip'] = df_electricity_prices['zip'].apply(str).str.zfill(5) #clean up zip codes
     df_electricity_prices = df_electricity_prices.rename(columns = {'zip':'zip'}) # rename column to match df_working
 
@@ -189,7 +189,7 @@ def MergeZipLevelDemand(): # done
     df_working = pd.read_csv('0_output.csv')
     df_working['zip'] = df_working['zip'].apply(str).str.zfill(5)
 
-    df_electricity_prices = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Energy/zip_to_electricity_price.csv') #Read in zip level demand data   
+    df_electricity_prices = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/zip_to_electricity_price.csv') #Read in zip level demand data   
     df_electricity_prices['zip'] = df_electricity_prices['zip'].apply(str).str.zfill(5) #clean up zip codes 
     df_working = pd.merge(df_working, df_electricity_prices, left_on='zip', right_on='zip', how='left')
     # Prices have gone up a lot since these prices were collected.  Therefore we should use them as a relative metric
@@ -198,13 +198,13 @@ def MergeZipLevelDemand(): # done
     df_working['electricity_price'] = df_working['electricity_price'] * 1.32 # Account for 3 years of inflation 
 
     # # COUNTY LEVEL DEMAND - Seems iffy
-    # df_electricity_demand = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Energy/zip_to_county_to_electricity_demand.csv') #Read in zip level demand data   
+    # df_electricity_demand = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/zip_to_county_to_electricity_demand.csv') #Read in zip level demand data   
     # df_electricity_demand = df_electricity_demand[['zip','avg_electricity_use_kwh']]
     # df_electricity_demand['zip'] = df_electricity_demand['zip'].apply(str).str.zfill(5) #clean up zip codes 
     # df_working = pd.merge(df_working, df_electricity_demand, left_on='zip', right_on='zip', how='left')
 
     # STATE LEVEL DEMAND - less precise, more smooth
-    df_electricity_demand = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Energy/state_to_avg_electricity_use.csv') #Read in zip level demand data   
+    df_electricity_demand = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Energy/state_to_avg_electricity_use.csv') #Read in zip level demand data   
     df_electricity_demand = df_electricity_demand[['state','avg_electricity_use_kwh']]
 
     #TEMP_CODE --- scaling up energy use in San Diego to reflect that fact that avg. solar size is 7.49 kw at a .195 CF (12794 = 7.49*8760*.195)
@@ -245,7 +245,7 @@ def CalculateRecommendedSystemSize(): # TO DO  TO DO  TO DO  TO DO  TO DO  TO DO
     ############################## THIS IS WHERE THINGS DEVIATE BASED ON WHETHER THE STATE HAS NET METERING OR NOT ##############################
 
     #This file adds columns: state_name, climata_rank, percent_incentive_max_$, incentive_percent, net_of_federal, SREC_$_kwh, and net_metering
-    df_incentives = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Incentives/state_to_DSIRE_incentives_031823.csv')
+    df_incentives = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Incentives/state_to_DSIRE_incentives_031823.csv')
     df_incentives = df_incentives[['state', 'net_metering']] # Drop all columns except state and net_metering
     df_working = pd.merge(df_working, df_incentives, on='state', how='left')
 
@@ -270,7 +270,7 @@ def MergeCosts(): # done
     df_working = pd.read_csv('1_output.csv')
 
     #This file adds a column with the average price per KW for each state
-    df_costs = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Cost/state_to_cost_per_kw.csv', usecols=['state','avg_cost_per_kw'])
+    df_costs = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Cost/state_to_cost_per_kw.csv', usecols=['state','avg_cost_per_kw'])
 
     df_working = pd.merge(df_working, df_costs, on='state', how='left')
 
@@ -285,7 +285,7 @@ def MergeIncentivesCalculateGrossSavings(): # TO DO  TO DO  TO DO  TO DO  TO DO 
     print(df_working)
 
     #This file adds columns: state_name, climata_rank, percent_incentive_max_$, incentive_percent, net_of_federal, SREC_$_kwh, and net_metering
-    df_incentives = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/Data/Incentives/state_to_DSIRE_incentives_031823.csv')
+    df_incentives = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/Incentives/state_to_DSIRE_incentives_031823.csv')
     df_incentives.drop(columns=['state_name', 'climata_rank','net_metering'], inplace=True)
 
     df_working = pd.merge(df_working, df_incentives, on='state', how='left') 
@@ -452,7 +452,7 @@ def CalculateLoanPayments(): # TO DO  TO DO  TO DO  TO DO  TO DO  TO DO  TO DO  
     df_working = pd.read_csv('1_output.csv')
 
     if USE_USB_INTEREST_RATES == True: #If using USB interest rates
-        df_USB_interest_rates = pd.read_csv('/Users/peterlehner/Dropbox/Climata_nonGit/USB_zips.csv')
+        df_USB_interest_rates = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/USB_zips.csv')
         df_USB_interest_rates = df_USB_interest_rates[['zip', 'Median_Variable_Rate']]
         df_working = pd.merge(df_working, df_USB_interest_rates, left_on='zip', right_on='zip', how='left')
         df_working['Median_Variable_Rate'] = df_working['Median_Variable_Rate'].astype(float)
@@ -632,7 +632,7 @@ def CombineFiles(): # done
     df_solar_only.to_excel(writer, sheet_name='Solar only',index=False)
     df_solar_heatpump.to_excel(writer, sheet_name='Solar & heat pump',index=False)
 
-    writer.save()
+    writer.close()
     print('CombineFiles: Final_output_combined.xlsx\n')
 
 def pretty_print_response(response): #turn on as needed when testing the API 
@@ -674,7 +674,7 @@ HAVE_CACHED_KELVIN_OUTPUT = True
 RUNTIME_DELAY = False # TURN THIS ON IF RUNNING MORE  THAN 1000 zips per hour
 
 TAKE_SAMPLE = True
-NUMBER_OF_ZIPS = 1000
+NUMBER_OF_ZIPS = 3
 
 if __name__ == "__main__":
     t0 = time.time()

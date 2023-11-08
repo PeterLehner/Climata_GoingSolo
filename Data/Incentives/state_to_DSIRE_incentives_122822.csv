@@ -1,0 +1,54 @@
+﻿state_name,state,climata_rank,W_incentive_max_$,incentive_per_W,percent_incentive_max_$,incentive_percent,net_of_federal,SREC_$_kwh,net_metering
+Massachusetts,MA,1,0,0,1000,0.15,1,0.1,1
+Arizona,AZ,2,0,0,1000,0.25,0,0,0
+District of Columbia,DC,2,0,0,0,0.00,0,0.4,1
+Hawaii,HI,3,0,0,5000,0.35,0,0,0
+Nevada,NV,3,0,0,0,0.00,0,0,0
+Rhode Island,RI,3,0,0,0,0.00,0,0,1
+Wisconsin,WI,3,500,0,0,0.00,0,0,0
+Indiana,IN,3,0,0,0,0.00,0,0,0
+Wyoming,WY,5,0,0,0,0.00,0,0,0
+Virgin Islands,VI,5,0,0,0,0.00,0,0,0
+Missouri,MO,5,0,0,0,0.00,0,0,0
+North Dakota,ND,5,0,0,0,0.00,0,0,0
+South Carolina,SC,5,0,0,0,0.00,0,0,0
+South Dakota,SD,5,0,0,0,0.00,0,0,0
+Tennessee,TN,5,0,0,0,0.00,0,0,0
+Louisiana,LA,5,0,0,0,0.00,0,0,0
+Puerto Rico,PR,5,0,0,0,0.00,0,0,0
+Alabama,AL,5,0,0,0,0.00,0,0,0
+Nebraska,NE,5,0,0,0,0.00,0,0,0
+Georgia,GA,5,0,0,0,0.00,0,0,0
+Kentucky,KY,5,0,0,0,0.00,0,0,0
+Michigan,MI,5,0,0,0,0.00,0,0,0
+Mississippi,MS,5,0,0,0,0.00,0,0,0
+Oklahoma,OK,5,0,0,0,0.00,0,0,0
+California,CA,1,0,0,0,0.00,0,0,1
+New York,NY,1,0,0.2,5000,0.25,0,0,1
+New Jersey,NJ,1,0,0,0,0.00,0,0,1
+Washington,WA,2,0,0,0,0.00,0,0,1
+Oregon,OR,2,500,0,0,0.00,0,0,1
+Connecticut,CT,2,0,0,0,0.00,0,0,1
+New Mexico,NM,2,0,0,6000,0.10,0,0,1
+Utah,UT,2,400,0,0,0.00,0,0,1
+Colorado,CO,2,0,0,0,0.00,0,0,1
+Florida,FL,2,0,0,0,0.00,0,0,1
+Maryland,MD,2,1000,0,0,0.00,0,0.08,1
+Texas,TX,2,0,0,0,0.00,0,0,1
+Maine,ME,2,0,0,0,0.00,0,0,1
+Minnesota,MN,2,0,0,0,0.00,0,0,1
+Vermont,VT,3,0,0,0,0.00,0,0,1
+Illinois,IL,3,0,1.2,0,0.00,0,0,1
+New Hampshire,NH,3,1000,0.2,0,0.00,0,0,1
+Ohio,OH,3,0,0,0,0.00,0,0,1
+Pennsylvania,PA,3,0,0,0,0.00,0,0.05,1
+Iowa,IA,3,0,0,0,0.00,0,0,1
+Idaho,ID,3,0,0,0,0.06,0,0,1
+Virginia,VA,3,0,0,0,0.00,0,0,1
+North Carolina,NC,3,0,0,0,0.00,0,0,1
+Alaska,AK,3,0,0,0,0.00,0,0,1
+Arkansas,AR,3,0,0,0,0.00,0,0,1
+West Virginia,WV,3,0,0,0,0.00,0,0,1
+Delaware,DE,3,6000,0.7,0,0.00,0,0.03,1
+Montana,MT,4,0,0,0,0.00,0,0,1
+Kansas,KS,5,0,0,0,0.00,0,0,1

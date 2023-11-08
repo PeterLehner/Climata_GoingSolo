@@ -1,0 +1,52 @@
+﻿state_name,state,SolarReviews via Consumer Affairs,Energy Sage,Ecowatch via marketwatch,avg_cost_per_kw,Climata_rank
+Indiana,IN,2.49,3.47,2.68,3470,3
+Minnesota,MN,2.74,3.45,2.84,3450,2
+Rhode Island,RI,2.69,3.44,2.84,3440,3
+New Hampshire,NH,2.83,3.4,2.91,3400,3
+New York,NY,2.86,3.39,2.95,3390,1
+Massachusetts,MA,2.87,3.37,2.94,3370,1
+Colorado,CO,2.44,3.36,2.69,3360,2
+Iowa,IA,2.53,3.36,2.77,3360,3
+New Mexico,NM,2.44,3.34,2.68,3340,2
+Wisconsin,WI,2.6,3.34,2.6,3340,3
+Michigan,MI,2.66,3.31,2.81,3310,5
+Georgia,GA,2.33,3.27,2.55,3270,5
+Louisiana,LA,2.38,3.15,2.57,3150,5
+Tennessee,TN,2.49,3.08,2.49,3080,5
+Illinois,IL,2.57,3.07,2.73,3070,3
+Vermont,VT,2.85,3.07,2.87,3070,3
+Maine,ME,2.87,3.02,2.83,3020,2
+Pennsylvania,PA,2.38,3.01,2.55,3010,3
+North Carolina,NC,2.49,3.01,2.54,3010,3
+Maryland,MD,2.74,3,2.77,3000,2
+Oregon,OR,2.5,2.98,2.6,2980,2
+Virginia,VA,2.66,2.96,2.75,2960,3
+Washington,WA,2.73,2.93,2.69,2930,2
+Idaho,ID,2.52,2.92,2.6,2920,3
+Oklahoma,OK,2.62,2.89,2.62,2890,5
+New Jersey,NJ,2.77,2.86,2.77,2860,1
+Ohio,OH,2.5,2.86,2.56,2860,3
+South Carolina,SC,2.62,2.85,2.72,2850,5
+Arkansas,AR,2.63,2.84,2.54,2840,3
+Missouri,MO,2.59,2.82,2.59,2820,5
+California,CA,2.68,2.76,2.73,2760,1
+Utah,UT,2.66,2.75,2.68,2750,2
+Texas,TX,2.6,2.73,2.69,2730,2
+Delaware,DE,2.65,2.58,2.58,2580,3
+Florida,FL,2.41,2.54,2.53,2540,2
+Nevada,NV,2.61,2.44,2.52,2440,3
+Arizona,AZ,2.67,2.31,2.61,2310,2
+District of Columbia,DC,2.88,,3.16,3020,2
+Connecticut,CT,2.86,,2.8,2830,2
+Alaska,AK,2.41,,2.41,2410,3
+Hawaii,HI,2.67,,2.67,2670,3
+West Virginia,WV,2.64,,2.64,2640,3
+Montana,MT,2.42,,2.54,2480,4
+Kansas,KS,2.39,,2.59,2490,5
+Alabama,AL,2.45,,2.45,2450,5
+Kentucky,KY,2.34,,2.34,2340,5
+Mississippi,MS,2.64,,2.64,2640,5
+Nebraska,NE,2.83,,2.83,2830,5
+North Dakota,ND,2.42,,2.42,2420,5
+South Dakota,SD,2.39,,2.39,2390,5
+Wyoming,WY,2.57,,2.57,2570,5
