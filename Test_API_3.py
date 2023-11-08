@@ -3,7 +3,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 
 def ShowZipCodes():
     df_working = pd.read_csv('Data/Zips/zip_lat_lon_state_small.csv')
