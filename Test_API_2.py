@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
 
-
 app = Flask(__name__)
 
 @app.route('/add', methods=['POST'])
+
 def add_numbers():
     data = request.get_json()
     if 'number1' not in data or 'number2' not in data:
