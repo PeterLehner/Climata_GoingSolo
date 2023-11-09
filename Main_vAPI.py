@@ -74,13 +74,13 @@ def CalculateSolarIncentives(dict_working):
     
     #STATE: Incentive by watt of installed capacity
     amount_flt = dict_working['incentive_per_W']*(1000*dict_working['recommended_system_size_(KW)'])
-    amount_max = dict_working['W_incentive_max_$']
+    amount_max = dict_working['W_incentive_max_USD']
     amount_max = float('inf') if amount_max == 0 else amount_max #if amount_max is 0, then set it to infinity so that it is not the min
     dict_working['state_incentive_by_W'] = min([amount_flt, amount_max]) #if there is no incentive per W, then just take the lump sum in the max column
 
     #STATE: Incentive by percent of system cost
     amount_flt = dict_working['incentive_percent']*dict_working['temp_cost'] #if there is no max, just take the incentive percent multiplied by the system cost
-    amount_max = dict_working['percent_incentive_max_$']
+    amount_max = dict_working['percent_incentive_max_USD']
     amount_max = float('inf') if amount_max == 0 else amount_max #if amount_max is 0, then set it to infinity so that it is not the min
     dict_working['state_incentive_by_percent'] = min([amount_flt, amount_max]) #if there is no incentive percent, then just take the lump sum in the max column
 
@@ -127,7 +127,7 @@ def CalculateProductionSavings(dict_working): # CALCULATE PRODUCTION SAVINGS: SA
     # I CHECKED: in states without net metering, the SREC price is 0
     
     # YEAR 1 production savings
-    dict_working['year1_production_savings'] = dict_working['NetMetering_eligible_production'] * dict_working['electricity_price'] + dict_working['SREC_eligible_production'] * dict_working['SREC_$_kwh']
+    dict_working['year1_production_savings'] = dict_working['NetMetering_eligible_production'] * dict_working['electricity_price'] + dict_working['SREC_eligible_production'] * dict_working['SREC_USD_kwh']
 
     # Create a new column called '20_year_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
     dict_working['20_year_production_savings'] = 0
@@ -137,7 +137,7 @@ def CalculateProductionSavings(dict_working): # CALCULATE PRODUCTION SAVINGS: SA
     year = 1 
     while year <= NET_SAVINGS_YEARS:
         
-        dict_working['20_year_production_savings'] = dict_working['20_year_production_savings'] + dict_working['NetMetering_eligible_production'] * dict_working['TEMP_net_metering_price'] + dict_working['SREC_eligible_production'] * dict_working['SREC_$_kwh']
+        dict_working['20_year_production_savings'] = dict_working['20_year_production_savings'] + dict_working['NetMetering_eligible_production'] * dict_working['TEMP_net_metering_price'] + dict_working['SREC_eligible_production'] * dict_working['SREC_USD_kwh']
         
         dict_working['TEMP_net_metering_price'] = dict_working['electricity_price'] * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
         
@@ -186,7 +186,7 @@ def CalculatePaybackPeriod():
     for index, row in dict_working.iterrows():
         year = 1
         while dict_working['cumulative_savings'] <= dict_working['net_estimated_cost']:
-            dict_working['cumulative_savings'] = dict_working['cumulative_savings'] + dict_working['eligible_production'] * dict_working['TEMP_net_metering_price'] + dict_working['output_annual']*dict_working['SREC_$_kwh']
+            dict_working['cumulative_savings'] = dict_working['cumulative_savings'] + dict_working['eligible_production'] * dict_working['TEMP_net_metering_price'] + dict_working['output_annual']*dict_working['SREC_USD_kwh']
             dict_working['TEMP_net_metering_price'] = dict_working['electricity_price'] * dict_working['energy_price_growth_rate']**year #For each year, update the price according to the rate of inflation. ** is python for exponent
             year += 1
             if year > 30:
@@ -211,7 +211,7 @@ def ClearHPdatafromSolar(dict_working, heatpump_query):
         dict_working["status_quo_electricity"] = None
         dict_working["status_quo_natgas"] = None
         dict_working["heatpump_electricity"] = None
-        dict_working["natgas_price_$_per_1000_cf_2021"] = None
+        dict_working["natgas_price_USD_per_1000_cf_2021"] = None
         dict_working["cost_before_heatpump"] = None
         dict_working["cost_after_heatpump"] = None
         dict_working["heatpump_savings"] = None
@@ -248,11 +248,11 @@ def DropFields():
 
     dict_working.drop(columns=['output_annual',
     'sizing_ratio',
-    'natgas_price_$_per_1000_cf_2021',
+    'natgas_price_USD_per_1000_cf_2021',
     'avg_cost_per_kw',
-    'W_incentive_max_$',
+    'W_incentive_max_USD',
     'incentive_per_W',
-    'percent_incentive_max_$',
+    'percent_incentive_max_USD',
     'incentive_percent',
     'eligible_production',
     'cumulative_savings'], inplace=True)
