@@ -1,5 +1,7 @@
 import json
-from Main_vAPI import PullFromDBmain, AdjustElectricityUse, GetHeatpumpSavings, CalculateRecommendedSystemSize, MergeCosts, CalculateSolarIncentives
+#from Main_vAPI import PullFromDBmain, AdjustElectricityUse, GetHeatpumpSavings, CalculateRecommendedSystemSize, MergeCosts, CalculateSolarIncentives, CalculateBatteryIncentives, CalculateProductionSavings
+from Main_vAPI import *
+
 
 # Test the SelectZipC83301function
 zip_query = "60188"
@@ -21,6 +23,12 @@ result = CalculateRecommendedSystemSize(result, heatpump_query, BATTERY_COUNT, B
 result = MergeCosts(result)
 
 result = CalculateSolarIncentives(result)
+
+result = CalculateBatteryIncentives(result)
+
+result = CalculateProductionSavings(result)
+
+result = CalculateLoanPayments(result)
 
 #convert result dictioniary to json
 result = json.dumps(result)
