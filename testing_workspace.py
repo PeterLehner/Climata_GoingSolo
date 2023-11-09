@@ -1,8 +1,8 @@
 import json
 from Main_vAPI import PullFromDBmain, AdjustElectricityUse, GetHeatpumpSavings, CalculateRecommendedSystemSize, MergeCosts, CalculateSolarIncentives
 
-# Test the SelectZipCodes function
-zip_query = "03047"
+# Test the SelectZipC83301function
+zip_query = "60188"
 electric_bill_query = 150
 sqft_query = None
 heatpump_query = False

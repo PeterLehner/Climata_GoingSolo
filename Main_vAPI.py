@@ -36,7 +36,7 @@ def GetHeatpumpSavings(dict_working, sqft_query):
 
     return(dict_working)
 
-### THIS IS WHERE THINGS DEVIATE BASED ON WHETHER THEY ARE GETTING A HEAT PUMP ###
+# Things deviate based on whether they are get a heat pump
 def CalculateRecommendedSystemSize(dict_working, heatpump_query, BATTERY_COUNT, BATTERY_KWH): 
     if heatpump_query == True:
         dict_working['electricity_use_kwh'] = dict_working['electricity_use_kwh'] + dict_working["heatpump_electricity"]
@@ -72,31 +72,25 @@ def CalculateSolarIncentives(dict_working):
     #create a temporary column for the cost of the system NET of the federal tax credit (for applicable states, of course)
     dict_working['temp_cost'] = dict_working['estimated_cost']*0.7 if dict_working['net_of_federal'] == 1 else dict_working['estimated_cost']
     
-    #STATE: Incentive by percent of system cost
-    amount_flt = dict_working['incentive_percent']*dict_working['temp_cost'] #if there is no max, just take the incentive percent multiplied by the system cost
-    amount_max = dict_working['percent_incentive_max_$']
-    amount_max = float('inf') if amount_max == 0 else amount_max #if amount_max is 0, then set it to infinity so that it is not the min
-    dict_working['state_incentive_by_percent'] = min([amount_flt, amount_max]) #if there is no incentive percent, then just take the lump sum in the max column
-
     #STATE: Incentive by watt of installed capacity
     amount_flt = dict_working['incentive_per_W']*(1000*dict_working['recommended_system_size_(KW)'])
     amount_max = dict_working['W_incentive_max_$']
     amount_max = float('inf') if amount_max == 0 else amount_max #if amount_max is 0, then set it to infinity so that it is not the min
     dict_working['state_incentive_by_W'] = min([amount_flt, amount_max]) #if there is no incentive per W, then just take the lump sum in the max column
 
+    #STATE: Incentive by percent of system cost
+    amount_flt = dict_working['incentive_percent']*dict_working['temp_cost'] #if there is no max, just take the incentive percent multiplied by the system cost
+    amount_max = dict_working['percent_incentive_max_$']
+    amount_max = float('inf') if amount_max == 0 else amount_max #if amount_max is 0, then set it to infinity so that it is not the min
+    dict_working['state_incentive_by_percent'] = min([amount_flt, amount_max]) #if there is no incentive percent, then just take the lump sum in the max column
+
     #Subtract incentives from system cost to get net cost
     dict_working['net_estimated_cost'] = dict_working['estimated_cost'] - dict_working['federal_incentive'] - dict_working['state_incentive_by_percent'] - dict_working['state_incentive_by_W']
-    dict_working.pop('temp_cost')
-
-    # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
-    if dict_working['state'] == 'IL' and dict_working['recommended_system_size_(KW)'] <= 10:
-        dict_working['net_estimated_cost'] = (15*dict_working['system_output_annual']/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
-    elif dict_working['state'] == 'IL' and dict_working['recommended_system_size_(KW)'] > 10:
-        dict_working['net_estimated_cost'] = (15*dict_working['system_output_annual']/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
+    dict_working.pop('temp_cost') #Drop the temporary column
 
     return(dict_working)
 
-
+    
 def CalculateBatteryIncentives(dict_working):
     dict_working['net_battery_cost'] = 0 # Create a column called 'net_battery_cost' that is the cost of the battery after rebates
 
@@ -163,6 +157,16 @@ def CalculateProductionSavings():
             dict_working['20_year_production_savings'] = dict_working['20_year_production_savings'] + NET_SAVINGS_YEARS*dict_working['system_output_annual']*dict_working['SREC_$_kwh']
         if dict_working['net_metering'] == 0:
             dict_working['20_year_production_savings'] = dict_working['20_year_production_savings']
+
+    # FIX THIS. IT"S PAIED OUT YEARLY SO NEEDS TO GO HERE
+    # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
+    if dict_working['state'] == 'IL':
+        if dict_working['recommended_system_size_(KW)'] <= 10:
+            dict_working['net_estimated_cost'] = dict_working['net_estimated_cost'] - (15*dict_working['system_output_annual']/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
+        elif dict_working['recommended_system_size_(KW)'] > 10:
+            dict_working['net_estimated_cost'] = dict_working['net_estimated_cost'] - (15*dict_working['system_output_annual']/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
+
+
 
 
     dict_working.drop(columns=['TEMP_net_metering_price'], inplace=True)
