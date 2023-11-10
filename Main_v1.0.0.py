@@ -174,8 +174,6 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
     # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
     if heatpump_query == False: # Overwrite all values in the above keys to be None
-        status_quo_electricity = None
-        status_quo_natgas = None
         heatpump_electricity = None
         cost_before_heatpump = None
         cost_after_heatpump = None
