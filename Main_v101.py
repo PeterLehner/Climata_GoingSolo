@@ -1,4 +1,3 @@
-import pandas as pd
 import time
 
 #Key assumptions for calculating savings net of loan payments
@@ -208,18 +207,18 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
     cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
     heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
 
-    t_final = time.time()
-    t1_t0 = t1-t0
-    t2_t1 = t2-t1
-    t3_t2 = t3-t2
-    t_final_t3 = t_final-t3
+    # t_final = time.time()
+    # t1_t0 = t1-t0
+    # t2_t1 = t2-t1
+    # t3_t2 = t3-t2
+    # t_final_t3 = t_final-t3
 
-    time_dict = {
-        't1_t0' : t1_t0,
-        't2_t1' : t2_t1,
-        't3_t2' : t3_t2,
-        't_final_t3' : t_final_t3,
-    }
+    # time_dict = {
+    #     't1_t0' : t1_t0,
+    #     't2_t1' : t2_t1,
+    #     't3_t2' : t3_t2,
+    #     't_final_t3' : t_final_t3,
+    # }
 
     result_dict = {
         'zip_query'                  : zip_query,
@@ -253,5 +252,5 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
         'cost_after_heatpump'        : cost_after_heatpump,
         'heatpump_savings'           : heatpump_savings,
     }
-    #return result_dict
-    return time_dict
+    return result_dict
+    #return time_dict

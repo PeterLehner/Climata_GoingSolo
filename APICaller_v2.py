@@ -31,7 +31,7 @@ def APIRequest():
         't4_t0' : t4_t0,
     }
 
-    return SavingsModelOutput, time_dict
+    return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
 
 if __name__ == '__main__':
     app.run(debug=True)
