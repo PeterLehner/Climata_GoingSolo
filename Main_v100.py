@@ -19,8 +19,11 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
     t0 = time.time()
 
     df_working = pd.read_csv('Data/database_main.csv')
+    t1 = time.time()
+
     zip_query = int(zip_query)  # Convert to integer
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
+    t2 = time.time()
 
     state                             = dict_working.get('state')
     avg_electricity_use_kwh           = dict_working.get('avg_electricity_use_kwh')
@@ -46,7 +49,7 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
     net_of_federal                    = dict_working.get('net_of_federal')
     SREC_USD_kwh                      = dict_working.get('SREC_USD_kwh')
     net_metering                      = dict_working.get('net_metering')
-
+    t3 = time.time()
 
     # Adjust elecrtricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -85,6 +88,34 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
 
     recommended_system_size_KW = min(recommended_system_size_KW,15) #take the mininum of the recommended system size and 15 KW because roofs can't fit large arrays
     system_output_annual = recommended_system_size_KW*output_annual
+
+
+    # Calculate production savings: the savings from net metering and SRECs
+    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    NetMetering_eligible_production = min(system_output_annual, electricity_use_kwh) # output can be less than use because of 15 KW cap. And net metering does not apply to excess production above annual demand. 
+    SREC_eligible_production = system_output_annual if net_metering == 1 else NetMetering_eligible_production # SRECs apply to ALL production, except in states without net metering (I think)
+    # FOR STATES WIHTOUT NET METERING: change to just include first half of this equation, ignore SRECs, bc power not being provided to grid, just straight to battery?
+    
+    # YEAR 1 production savings: equivalent to forgone electricity costs + SREC revenue
+    year1_production_savings = NetMetering_eligible_production * electricity_price + SREC_eligible_production * SREC_USD_kwh
+
+    # Create a new column called '_20_year_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
+    _20_year_production_savings = 0
+    TEMP_net_metering_price = electricity_price
+    
+    # YEAR 20 production savings
+    year = 1 
+    while year <= NET_SAVINGS_YEARS:
+        _20_year_production_savings = _20_year_production_savings + NetMetering_eligible_production * TEMP_net_metering_price + SREC_eligible_production * SREC_USD_kwh
+        TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
+        year += 1
+
+    # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
+    if state == 'IL':
+        if recommended_system_size_KW <= 10:
+            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
+        elif recommended_system_size_KW > 10:
+            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
 
 
     # Calculate system cost, net of solar incentives
@@ -134,34 +165,6 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
         net_estimated_cost = net_estimated_cost + net_battery_cost
 
 
-    # Calculate production savings: the savings from net metering and SRECs
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    NetMetering_eligible_production = min(system_output_annual, electricity_use_kwh) # net metering does not apply to excess production above annual demand. 
-    SREC_eligible_production = system_output_annual if net_metering == 1 else NetMetering_eligible_production # SRECs apply to ALL production, except in states without net metering (I think)
-    # FOR STATES WIHTOUT NET METERING: change to just include first half of this equation, ignore SRECs, bc power not being provided to grid, just straight to battery?
-    
-    # YEAR 1 production savings: equivalent to forgone electricity costs + SREC revenue
-    year1_production_savings = NetMetering_eligible_production * electricity_price + SREC_eligible_production * SREC_USD_kwh
-
-    # Create a new column called '_20_year_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
-    _20_year_production_savings = 0
-    TEMP_net_metering_price = electricity_price
-    
-    # YEAR 20 production savings
-    year = 1 
-    while year <= NET_SAVINGS_YEARS:
-        _20_year_production_savings = _20_year_production_savings + NetMetering_eligible_production * TEMP_net_metering_price + SREC_eligible_production * SREC_USD_kwh
-        TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
-        year += 1
-
-    # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
-    if state == 'IL':
-        if recommended_system_size_KW <= 10:
-            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
-        elif recommended_system_size_KW > 10:
-            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
-
-
     # Calculate loan payments and net savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     monthly_interest_payment = (net_estimated_cost * (DEFAULT_INTEREST_RATE/12)) / (1 - (1 + (DEFAULT_INTEREST_RATE/12))**(-12*DEFAULT_LOAN_TERM))
@@ -204,6 +207,18 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
     cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
     heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
 
+    t_final = time.time()
+    t1_t0 = t1-t0
+    t2_t1 = t2-t1
+    t3_t2 = t3-t2
+    t_final_t3 = t_final-t3
+
+    time_dict = {
+        't1_t0' : t1_t0,
+        't2_t1' : t2_t1,
+        't3_t2' : t3_t2,
+        't_final_t3' : t_final_t3,
+    }
 
     result_dict = {
         'zip_query'                  : zip_query,
@@ -237,4 +252,5 @@ def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query):
         'cost_after_heatpump'        : cost_after_heatpump,
         'heatpump_savings'           : heatpump_savings,
     }
-    return result_dict
+    #return result_dict
+    return time_dict
