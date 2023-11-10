@@ -15,14 +15,15 @@ BATTERY_COST  = BATTERY_COST * BATTERY_COUNT
 BATTERY_KWH   = BATTERY_KWH * BATTERY_COUNT
 BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
-def SavingsModel(df_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
+#def SavingsModel(df_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
+def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
     t0 = time.time()
 
     #df_working = pd.read_csv('Data/database_main.csv')
     t1 = time.time()
 
-    zip_query = int(zip_query)  # Convert to integer
-    dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
+    #zip_query = int(zip_query)  # Convert to integer
+    #dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
     t2 = time.time()
 
     state                             = dict_working.get('state')
