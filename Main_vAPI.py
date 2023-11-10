@@ -221,7 +221,7 @@ def RoundFields():
     dict_working = pd.read_csv('1_output.csv')
 
     dict_working['capacity_factor']              = dict_working['capacity_factor'].round(3)
-    dict_working['electricity_use_kwh']      = dict_working['electricity_use_kwh'].round()
+    dict_working['electricity_use_kwh']          = dict_working['electricity_use_kwh'].round()
     dict_working['avg_electric_bill_monthly']    = dict_working['avg_electric_bill_monthly'].round()
     dict_working['recommended_system_size_(KW)'] = dict_working['recommended_system_size_(KW)'].round(1)
     dict_working['electricity_price']            = dict_working['electricity_price'].round(3)
@@ -304,8 +304,3 @@ NET_SAVINGS_YEARS = DEFAULT_LOAN_TERM
 
 if __name__ == "__main__":
     t0 = time.time()
-
-#Fix
-# Drop Fields
-# Round Fields
-# Rename Fields

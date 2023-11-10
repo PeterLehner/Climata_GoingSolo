@@ -1,13 +1,11 @@
 import pandas as pd
-import numpy as np
-from Heatpumps import CallHeatPumpAPI
-from MergeCachedKelvinOutput import MergeCachedKelvinOutput
+import time
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
 DEFAULT_INTEREST_RATE = 0.06
 DEFAULT_LOAN_TERM = 20
-NET_SAVINGS_YEARS = DEFAULT_LOAN_TERM
+NET_SAVINGS_YEARS = DEFAULT_LOAN_TERM # Can be changed
 
 BATTERY_COUNT = 1
 BATTERY_COST  = 14200 # Tesla Powerwall
@@ -18,6 +16,8 @@ BATTERY_KWH   = BATTERY_KWH * BATTERY_COUNT
 BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
 def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query): 
+    t0 = time.time()
+
     df_working = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/database_main.csv')
     zip_query = int(zip_query)  # Convert to integer
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
@@ -48,17 +48,16 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
     net_metering                      = dict_working.get('net_metering')
 
 
+    # Adjust elecrtricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### AdjustElectricityUse
-    #Calcuate a homeowners electric use based on their electric bill. Else, use the average electric use for the zip code
     if electric_bill_query is not None:
-        electricity_use_kwh = (12*electric_bill_query)/electricity_price
+        electricity_use_kwh = (12*electric_bill_query)/electricity_price #Calcuate a homeowners electric use based on their electric bill.
     else:
-        electricity_use_kwh = avg_electricity_use_kwh
+        electricity_use_kwh = avg_electricity_use_kwh # Else, use the average electric use for the zip code
 
 
+    # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### GetHeatpumpSavings
     if sqft_query is not None:
         print("TO DO")
         #CallKelvinAPI(dict_working, sqft_query) # If a sqft is passed into API, call the Kelvin model # TO DO
@@ -68,10 +67,10 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
         heatpump_savings = avg_heatpump_savings
 
 
+    # Calculate recommended system size
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### CalculateRecommendedSystemSize
     if heatpump_query == True:
-        electricity_use_kwh = electricity_use_kwh + dict_working["heatpump_electricity"]
+        electricity_use_kwh = electricity_use_kwh + heatpump_electricity
         Heat_pump = 'Yes'
         avg_electric_bill_monthly = electricity_use_kwh*electricity_price/12
     else:
@@ -88,13 +87,10 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
     system_output_annual = recommended_system_size_KW*output_annual
 
 
+    # Calculate system cost, net of solar incentives
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### MergeCosts(dict_working): 
     estimated_cost = avg_cost_per_kw*recommended_system_size_KW
     
-
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### CalculateSolarIncentives(dict_working): 
     #FEDERAL: Tax credit is 30% of system cost
     federal_incentive = 0.3*estimated_cost 
     temp_cost = estimated_cost*0.7 if net_of_federal == 1 else estimated_cost #create a temporary column for the cost of the system NET of the federal tax credit (for applicable states, of course)
@@ -114,8 +110,9 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
     #Subtract incentives from system cost to get net cost
     net_estimated_cost = estimated_cost - federal_incentive - state_incentive_by_percent - state_incentive_by_W
 
+
+    # Calculate system cost, net of battery incentives
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### CalculateBatteryIncentives(dict_working):
     net_battery_cost = 0 # Add blank column for the cost of the battery after incentives
     battery_incentives = 0 #Add blank column for battery incentives
 
@@ -136,17 +133,14 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
         battery_incentives = BATTERY_COST - net_battery_cost
         net_estimated_cost = net_estimated_cost + net_battery_cost
 
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ### SECTION ### CalculateProductionSavings: savings from net metering and SRECs
-    # net metering does not apply to excess production above annual demand. SRECs apply to ALL production
-    NetMetering_eligible_production = min(system_output_annual, electricity_use_kwh)
-    SREC_eligible_production = system_output_annual if net_metering == 1 else NetMetering_eligible_production
 
-    # We multiply by 'electricity_price' even where net metering is 0, bc we assume that they get a battery savings are equivalent to the forgone electricity costs
+    # Calculate production savings: the savings from net metering and SRECs
+    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    NetMetering_eligible_production = min(system_output_annual, electricity_use_kwh) # net metering does not apply to excess production above annual demand. 
+    SREC_eligible_production = system_output_annual if net_metering == 1 else NetMetering_eligible_production # SRECs apply to ALL production, except in states without net metering (I think)
     # FOR STATES WIHTOUT NET METERING: change to just include first half of this equation, ignore SRECs, bc power not being provided to grid, just straight to battery?
-    # I CHECKED: in states without net metering, the SREC price is 0
     
-    # YEAR 1 production savings
+    # YEAR 1 production savings: equivalent to forgone electricity costs + SREC revenue
     year1_production_savings = NetMetering_eligible_production * electricity_price + SREC_eligible_production * SREC_USD_kwh
 
     # Create a new column called '_20_year_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
@@ -175,4 +169,74 @@ def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query):
     year1_net_savings = year1_production_savings - yearly_interest_payment
     _20yr_net_savings  = _20_year_production_savings - min(DEFAULT_LOAN_TERM, NET_SAVINGS_YEARS) * yearly_interest_payment #if the loan term is greater than the net savings years, then only want to subtract the interest payments for the net savings years
 
-    return(dict_working)
+
+
+    # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    if heatpump_query == False: # Overwrite all values in the above keys to be None
+        status_quo_electricity = None
+        status_quo_natgas = None
+        heatpump_electricity = None
+        cost_before_heatpump = None
+        cost_after_heatpump = None
+        heatpump_savings = None
+
+    # Round the variables with inline if statements
+    electricity_use_kwh         = round(electricity_use_kwh) if electricity_use_kwh is not None else electricity_use_kwh
+    recommended_system_size_KW  = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
+    system_output_annual        = round(system_output_annual) if system_output_annual is not None else system_output_annual
+    
+    estimated_cost              = round(estimated_cost) if estimated_cost is not None else estimated_cost
+    federal_incentive           = round(federal_incentive) if federal_incentive is not None else federal_incentive
+    state_incentive_by_W        = round(state_incentive_by_W) if state_incentive_by_W is not None else state_incentive_by_W
+    state_incentive_by_percent  = round(state_incentive_by_percent) if state_incentive_by_percent is not None else state_incentive_by_percent
+    net_battery_cost            = round(net_battery_cost) if net_battery_cost is not None else net_battery_cost
+    battery_incentives          = round(battery_incentives) if battery_incentives is not None else battery_incentives
+    net_estimated_cost          = round(net_estimated_cost) if net_estimated_cost is not None else net_estimated_cost
+    
+    net_metering                = round(net_metering) if net_metering is not None else net_metering
+    year1_production_savings    = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
+    _20_year_production_savings = round(_20_year_production_savings) if _20_year_production_savings is not None else _20_year_production_savings
+
+    yearly_interest_payment     = round(yearly_interest_payment) if yearly_interest_payment is not None else yearly_interest_payment
+    year1_net_savings           = round(year1_net_savings) if year1_net_savings is not None else year1_net_savings
+    _20yr_net_savings           = round(_20yr_net_savings) if _20yr_net_savings is not None else _20yr_net_savings  # Assuming '_20yr_net_savings' is the cumulative savings
+    
+    cost_before_heatpump        = round(cost_before_heatpump) if cost_before_heatpump is not None else cost_before_heatpump
+    cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
+    heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
+
+
+    result_dict = {
+        'zip_query'                  : zip_query,
+        'state'                      : state,
+        'electric_bill_query'        : electric_bill_query,
+        'heatpump_query'             : heatpump_query,
+        'sqft_query'                 : sqft_query,
+        
+        'electricity_use_kwh'        : electricity_use_kwh,
+        'recommended_system_size_KW' : recommended_system_size_KW,
+        'system_output_annual'       : system_output_annual,
+
+        'estimated_cost'             : estimated_cost,
+        'federal_incentive'          : federal_incentive,
+        'state_incentive_by_W'       : state_incentive_by_W,
+        'state_incentive_by_percent' : state_incentive_by_percent,
+        'net_battery_cost'           : net_battery_cost,
+        'battery_incentives'         : battery_incentives,
+        'net_estimated_cost'         : net_estimated_cost,
+
+        'net_metering'               : net_metering,
+        'year1_production_savings'   : year1_production_savings,
+        '_20_year_production_savings': _20_year_production_savings,
+        
+        'yearly_interest_payment'    : yearly_interest_payment,
+        'year1_net_savings'          : year1_net_savings,
+        '_20yr_net_savings'          : _20yr_net_savings,
+        
+        'Heat_pump'                  : Heat_pump,
+        'cost_before_heatpump'       : cost_before_heatpump,
+        'cost_after_heatpump'        : cost_after_heatpump,
+        'heatpump_savings'           : heatpump_savings,
+    }
+    return result_dict
