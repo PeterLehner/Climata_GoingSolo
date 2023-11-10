@@ -12,6 +12,8 @@ def APIRequest():
     sqft_query          = request.args.get('sqft_query')
     heatpump_query      = request.args.get('heatpump_query')
 
+    electric_bill_query = float(electric_bill_query) if electric_bill_query is not None else None
+
     return SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query)
 
 if __name__ == '__main__':
