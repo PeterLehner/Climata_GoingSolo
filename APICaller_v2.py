@@ -32,16 +32,18 @@ def APIRequest():
     t1_t0 = t1-t0
     t2_t1 = t2-t1
     t3_t2 = t3-t2
-    t_4_t3 = t4-t3
+    t4_t3 = t4-t3
+    t4_t0 = t4-t0
 
     time_dict = {
         't1_t0' : t1_t0,
         't2_t1' : t2_t1,
         't3_t2' : t3_t2,
-        't_4_t3' : t_4_t3,
+        't4_t3' : t4_t3,
+        't4_t0' : t4_t0,
     }
 
-    return time_dict
+    return time_dict, SavingsModelOutput
 
 if __name__ == '__main__':
     app.run(debug=True)
