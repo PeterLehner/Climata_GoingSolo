@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 
-def APIRequest(df_working):
+def APIRequest():
     zip_query           = request.args.get('zip_query')
     electric_bill_query = request.args.get('electric_bill_query')
     sqft_query          = request.args.get('sqft_query')
