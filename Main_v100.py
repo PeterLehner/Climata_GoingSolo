@@ -15,7 +15,7 @@ BATTERY_COST  = BATTERY_COST * BATTERY_COUNT
 BATTERY_KWH   = BATTERY_KWH * BATTERY_COUNT
 BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
-def PullFromDBmain(zip_query, electric_bill_query, sqft_query, heatpump_query): 
+def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query): 
     t0 = time.time()
 
     df_working = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/database_main.csv')
