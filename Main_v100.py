@@ -18,7 +18,7 @@ BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 def SavingsModel(zip_query, electric_bill_query, sqft_query, heatpump_query): 
     t0 = time.time()
 
-    df_working = pd.read_csv('/Users/peterlehner/Dropbox/Climata_GoingSolo/Data/database_main.csv')
+    df_working = pd.read_csv('Data/database_main.csv')
     zip_query = int(zip_query)  # Convert to integer
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
