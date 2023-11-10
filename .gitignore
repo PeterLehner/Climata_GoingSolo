@@ -3,9 +3,7 @@ instance/
 goingsolovirtualenvironment1/
 Trash/
 
-API_Main.py
-API_Publish.py
-API_testing.py
+.DS_Store
 
 APICaller_v1.py
 Main_v3.py
