@@ -1,6 +1,6 @@
 from flask import Flask, request
 import pandas as pd
-from Main_v100 import SavingsModel
+from Main_v101 import SavingsModel
 
 df_working = pd.read_csv('Data/database_main.csv')
 
