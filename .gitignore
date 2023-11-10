@@ -5,6 +5,9 @@ Trash/
 
 .DS_Store
 
+Data/.DS_Store
+Data/Zips/.DS_Store
+
 APICaller_v1.py
 Main_v3.py
 Main_v100.py
