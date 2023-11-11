@@ -10,7 +10,7 @@ app = Flask(__name__)
 @app.route('/')
 
 def APIRequest():
-    t0 = time.time()
+    t_start = time.time()
     
     zip_query           = request.args.get('zip_query')
     electric_bill_query = request.args.get('electric_bill_query')
@@ -25,10 +25,10 @@ def APIRequest():
 
     SavingsModelOutput = SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatpump_query)
     
-    t4 = time.time()
-    t4_t0 = t4-t0
+    t_end = time.time()
+    run_time = t_start-t_end
     time_dict = {
-        't4_t0' : t4_t0,
+        'Function run time' : run_time,
     }
 
     return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
