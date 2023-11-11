@@ -220,37 +220,76 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
     #     't_final_t3' : t_final_t3,
     # }
 
-    result_dict = {
-        'zip_query'                  : zip_query,
-        'state'                      : state,
-        'electric_bill_query'        : electric_bill_query,
-        'heatpump_query'             : heatpump_query,
-        'sqft_query'                 : sqft_query,
+    # result_dict = {
+    #     'zip_query'                  : zip_query,
+    #     'state'                      : state,
+    #     'electric_bill_query'        : electric_bill_query,
+    #     'heatpump_query'             : heatpump_query,
+    #     'sqft_query'                 : sqft_query,
         
-        'electricity_use_kwh'        : electricity_use_kwh,
-        'recommended_system_size_KW' : recommended_system_size_KW,
-        'system_output_annual'       : system_output_annual,
+    #     'electricity_use_kwh'        : electricity_use_kwh,
+    #     'recommended_system_size_KW' : recommended_system_size_KW,
+    #     'system_output_annual'       : system_output_annual,
 
-        'estimated_cost'             : estimated_cost,
-        'federal_incentive'          : federal_incentive,
-        'state_incentive_by_W'       : state_incentive_by_W,
-        'state_incentive_by_percent' : state_incentive_by_percent,
-        'net_battery_cost'           : net_battery_cost,
-        'battery_incentives'         : battery_incentives,
-        'net_estimated_cost'         : net_estimated_cost,
+    #     'estimated_cost'             : estimated_cost,
+    #     'federal_incentive'          : federal_incentive,
+    #     'state_incentive_by_W'       : state_incentive_by_W,
+    #     'state_incentive_by_percent' : state_incentive_by_percent,
+    #     'net_battery_cost'           : net_battery_cost,
+    #     'battery_incentives'         : battery_incentives,
+    #     'net_estimated_cost'         : net_estimated_cost,
 
-        'net_metering'               : net_metering,
-        'year1_production_savings'   : year1_production_savings,
-        '_20_year_production_savings': _20_year_production_savings,
+    #     'net_metering'               : net_metering,
+    #     'year1_production_savings'   : year1_production_savings,
+    #     '_20_year_production_savings': _20_year_production_savings,
         
-        'yearly_interest_payment'    : yearly_interest_payment,
-        'year1_net_savings'          : year1_net_savings,
-        '_20yr_net_savings'          : _20yr_net_savings,
+    #     'yearly_interest_payment'    : yearly_interest_payment,
+    #     'year1_net_savings'          : year1_net_savings,
+    #     '_20yr_net_savings'          : _20yr_net_savings,
         
-        'Heat_pump'                  : Heat_pump,
-        'cost_before_heatpump'       : cost_before_heatpump,
-        'cost_after_heatpump'        : cost_after_heatpump,
-        'heatpump_savings'           : heatpump_savings,
+    #     'Heat_pump'                  : Heat_pump,
+    #     'cost_before_heatpump'       : cost_before_heatpump,
+    #     'cost_after_heatpump'        : cost_after_heatpump,
+    #     'heatpump_savings'           : heatpump_savings,
+    # }
+
+    result_JSON = {
+        'Section'                        : {
+            'zip_query'                  : zip_query,
+            'state'                      : state,
+            'electric_bill_query'        : electric_bill_query,
+            'heatpump_query'             : heatpump_query,
+            'sqft_query'                 : sqft_query,
+        },
+        'electricity_section'            : {
+            'electricity_use_kwh'        : electricity_use_kwh,
+            'recommended_system_size_KW' : recommended_system_size_KW,
+            'system_output_annual'       : system_output_annual,
+        },
+        'cost_section'                   : {
+            'estimated_cost'             : estimated_cost,
+            'federal_incentive'          : federal_incentive,
+            'state_incentive_by_W'       : state_incentive_by_W,
+            'state_incentive_by_percent' : state_incentive_by_percent,
+            'net_battery_cost'           : net_battery_cost,
+            'battery_incentives'         : battery_incentives,
+            'net_estimated_cost'         : net_estimated_cost,
+        },
+        'savings_section'                : {
+            'net_metering'               : net_metering,
+            'year1_production_savings'   : year1_production_savings,
+            '_20_year_production_savings': _20_year_production_savings,
+            'yearly_interest_payment'    : yearly_interest_payment,
+            'year1_net_savings'          : year1_net_savings,
+            '_20yr_net_savings'          : _20yr_net_savings,
+        },
+        'heatpump_section'               : {
+            'Heat_pump'                  : Heat_pump,
+            'cost_before_heatpump'       : cost_before_heatpump,
+            'cost_after_heatpump'        : cost_after_heatpump,
+            'heatpump_savings'           : heatpump_savings,
+        },
     }
-    return result_dict
+
+    return result_JSON
     #return time_dict

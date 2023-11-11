@@ -27,9 +27,6 @@ def APIRequest():
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
     SavingsModelOutput = SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatpump_query)
-
-    #convert to json
-    SavingsModelOutput = SavingsModelOutput.to_json(orient='records')
     
     t_end = time.time()
     run_time = t_start-t_end
