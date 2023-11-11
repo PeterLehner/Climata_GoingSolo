@@ -28,13 +28,12 @@ def APIRequest():
 
     SavingsModelOutput = SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatpump_query)
     
-    t_end = time.time()
-    run_time = t_start-t_end
-    time_dict = {
-        'Function run time' : run_time,
-    }
+    # Calculate the run time of the function
+    run_time = t_start-time.time()
+    time_dict = {'Function run time' : run_time,}
 
-    return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
+    #return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
+    return {SavingsModelOutput}
 
 if __name__ == '__main__':
     app.run(debug=True)
