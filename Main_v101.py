@@ -237,40 +237,40 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
     # }
 
     result_JSON = OrderedDict({
-        'Section': OrderedDict({
-            'zip_query': zip_query,
-            'state': state,
-            'electric_bill_query': electric_bill_query,
-            'heatpump_query': heatpump_query,
-            'sqft_query': sqft_query,
+        'Section'                        : OrderedDict({
+            'zip_query'                  : zip_query,
+            'state'                      : state,
+            'electric_bill_query'        : electric_bill_query,
+            'heatpump_query'             : heatpump_query,
+            'sqft_query'                 : sqft_query,
         }),
-        'electricity_section': OrderedDict({
-            'electricity_use_kwh': electricity_use_kwh,
-            'recommended_system_size_KW': recommended_system_size_KW,
-            'system_output_annual': system_output_annual,
+        'electricity_section'            : OrderedDict({
+            'electricity_use_kwh'        : electricity_use_kwh,
+            'recommended_system_size_KW' : recommended_system_size_KW,
+            'system_output_annual'       : system_output_annual,
         }),
-        'cost_section': OrderedDict({
-            'estimated_cost': estimated_cost,
-            'federal_incentive': federal_incentive,
-            'state_incentive_by_W': state_incentive_by_W,
-            'state_incentive_by_percent': state_incentive_by_percent,
-            'net_battery_cost': net_battery_cost,
-            'battery_incentives': battery_incentives,
-            'net_estimated_cost': net_estimated_cost,
+        'cost_section'                   : OrderedDict({
+            'estimated_cost'             : estimated_cost,
+            'federal_incentive'          : federal_incentive,
+            'state_incentive_by_W'       : state_incentive_by_W,
+            'state_incentive_by_percent' : state_incentive_by_percent,
+            'net_battery_cost'           : net_battery_cost,
+            'battery_incentives'         : battery_incentives,
+            'net_estimated_cost'         : net_estimated_cost,
         }),
-        'savings_section': OrderedDict({
-            'net_metering': net_metering,
-            'year1_production_savings': year1_production_savings,
+        'savings_section'                : OrderedDict({
+            'net_metering'               : net_metering,
+            'year1_production_savings'   : year1_production_savings,
             '_20_year_production_savings': _20_year_production_savings,
-            'yearly_interest_payment': yearly_interest_payment,
-            'year1_net_savings': year1_net_savings,
-            '_20yr_net_savings': _20yr_net_savings,
+            'yearly_interest_payment'    : yearly_interest_payment,
+            'year1_net_savings'          : year1_net_savings,
+            '_20yr_net_savings'          : _20yr_net_savings,
         }),
-        'heatpump_section': OrderedDict({
-            'Heat_pump': Heat_pump,
-            'cost_before_heatpump': cost_before_heatpump,
-            'cost_after_heatpump': cost_after_heatpump,
-            'heatpump_savings': heatpump_savings,
+        'heatpump_section'               : OrderedDict({
+            'Heat_pump'                  : Heat_pump,
+            'cost_before_heatpump'       : cost_before_heatpump,
+            'cost_after_heatpump'        : cost_after_heatpump,
+            'heatpump_savings'           : heatpump_savings,
         }),
     })
 
