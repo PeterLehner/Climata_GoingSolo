@@ -69,7 +69,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
 
     # Calculate recommended system size
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if heatpump_query == True:
+    if heatpump_query == "yes":
         electricity_use_kwh = electricity_use_kwh + heatpump_electricity
         heat_pump = 'Yes'
         avg_electric_bill_monthly = electricity_use_kwh*electricity_price/12
@@ -173,7 +173,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
 
     # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    if heatpump_query == False: # Overwrite all values in the above keys to be None
+    if heatpump_query == "no": # Overwrite all values in the above keys to be None
         heatpump_electricity = None
         cost_before_heatpump = None
         cost_after_heatpump = None
