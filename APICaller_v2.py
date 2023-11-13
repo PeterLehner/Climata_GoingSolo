@@ -1,7 +1,9 @@
 from flask import Flask, request
-import pandas as pd
 from Main_v101 import SavingsModel
+import pandas as pd
 import time
+from collections import OrderedDict
+
 
 df_working = pd.read_csv('Data/database_main.csv')
 
@@ -33,7 +35,7 @@ def APIRequest():
     time_dict = {'Function run time' : run_time,}
 
     #return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
-    return {SavingsModelOutput}
+    return SavingsModelOutput
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) #TURN OFF DEBUG IN PRODUCTION
