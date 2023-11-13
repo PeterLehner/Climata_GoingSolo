@@ -45,4 +45,4 @@ def APIRequest():
     return SavingsModelOutput
 
 if __name__ == '__main__':
-    app.run(debug=True) #TURN OFF DEBUG IN PRODUCTION
+    app.run(debug=False) #TURN OFF DEBUG IN PRODUCTION
