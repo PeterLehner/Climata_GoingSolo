@@ -183,34 +183,35 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
 
 
     # Round the variables with inline if statements
-    electric_bill_query        = round(electric_bill_query) if electric_bill_query is not None else electric_bill_query
-    sqft                       = round(sqft_query) if sqft_query is not None else sqft_query
-    electricity_use_kwh        = round(electricity_use_kwh) if electricity_use_kwh is not None else electricity_use_kwh
     recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
-    system_output_annual       = round(system_output_annual) if system_output_annual is not None else system_output_annual
+    loan_rate_query            = round(loan_rate_query, 3) if loan_rate_query            is not None else loan_rate_query
     
-    estimated_cost             = round(estimated_cost) if estimated_cost is not None else estimated_cost
-    federal_incentive          = round(federal_incentive) if federal_incentive is not None else federal_incentive
-    state_incentive_by_W       = round(state_incentive_by_W) if state_incentive_by_W is not None else state_incentive_by_W
+    electric_bill_query        = round(electric_bill_query)        if electric_bill_query        is not None else electric_bill_query
+    sqft                       = round(sqft_query)                 if sqft_query                 is not None else sqft_query
+    electricity_use_kwh        = round(electricity_use_kwh)        if electricity_use_kwh        is not None else electricity_use_kwh
+    system_output_annual       = round(system_output_annual)       if system_output_annual       is not None else system_output_annual
+    
+    estimated_cost             = round(estimated_cost)             if estimated_cost             is not None else estimated_cost
+    federal_incentive          = round(federal_incentive)          if federal_incentive          is not None else federal_incentive
+    state_incentive_by_W       = round(state_incentive_by_W)       if state_incentive_by_W       is not None else state_incentive_by_W
     state_incentive_by_percent = round(state_incentive_by_percent) if state_incentive_by_percent is not None else state_incentive_by_percent
-    net_battery_cost           = round(net_battery_cost) if net_battery_cost is not None else net_battery_cost
-    battery_incentives         = round(battery_incentives) if battery_incentives is not None else battery_incentives
-    net_estimated_cost         = round(net_estimated_cost) if net_estimated_cost is not None else net_estimated_cost
+    net_battery_cost           = round(net_battery_cost)           if net_battery_cost           is not None else net_battery_cost
+    battery_incentives         = round(battery_incentives)         if battery_incentives         is not None else battery_incentives
+    net_estimated_cost         = round(net_estimated_cost)         if net_estimated_cost         is not None else net_estimated_cost
     
-    net_metering               = round(net_metering) if net_metering is not None else net_metering
-    year1_production_savings   = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
-    total_production_savings   = round(total_production_savings) if total_production_savings is not None else total_production_savings
+    net_metering               = round(net_metering)               if net_metering               is not None else net_metering
+    year1_production_savings   = round(year1_production_savings)   if year1_production_savings   is not None else year1_production_savings
+    total_production_savings   = round(total_production_savings)   if total_production_savings   is not None else total_production_savings
 
-    loan_term_query            = round(loan_term_query) if loan_term_query is not None else loan_term_query
-    loan_rate_query            = round(loan_rate_query, 3) if loan_rate_query is not None else loan_rate_query
-    monthly_interest_payment   = round(monthly_interest_payment) if monthly_interest_payment is not None else monthly_interest_payment
-    yearly_interest_payment    = round(yearly_interest_payment) if yearly_interest_payment is not None else yearly_interest_payment
-    year1_net_savings          = round(year1_net_savings) if year1_net_savings is not None else year1_net_savings
-    total_net_savings          = round(total_net_savings) if total_net_savings is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
+    loan_term_query            = round(loan_term_query)            if loan_term_query            is not None else loan_term_query
+    monthly_interest_payment   = round(monthly_interest_payment)   if monthly_interest_payment   is not None else monthly_interest_payment
+    yearly_interest_payment    = round(yearly_interest_payment)    if yearly_interest_payment    is not None else yearly_interest_payment
+    year1_net_savings          = round(year1_net_savings)          if year1_net_savings          is not None else year1_net_savings
+    total_net_savings          = round(total_net_savings)          if total_net_savings          is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
     
-    cost_before_heatpump       = round(cost_before_heatpump) if cost_before_heatpump is not None else cost_before_heatpump
-    cost_after_heatpump        = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
-    heatpump_savings           = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
+    cost_before_heatpump       = round(cost_before_heatpump)       if cost_before_heatpump       is not None else cost_before_heatpump
+    cost_after_heatpump        = round(cost_after_heatpump)        if cost_after_heatpump        is not None else cost_after_heatpump
+    heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
 
     result_JSON                                 = {
         'query'                                 : {
