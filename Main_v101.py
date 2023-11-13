@@ -3,9 +3,7 @@ import json
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
-DEFAULT_INTEREST_RATE = 0.06
-DEFAULT_LOAN_TERM = 20
-NET_SAVINGS_YEARS = DEFAULT_LOAN_TERM # Can be changed
+TOTAL_SAVINGS_YEARS                = 20
 
 BATTERY_COUNT = 1
 BATTERY_COST  = 14200 # Tesla Powerwall
@@ -16,37 +14,31 @@ BATTERY_KWH   = BATTERY_KWH * BATTERY_COUNT
 BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
 #def SavingsModel(df_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
-def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
-
-    #df_working = pd.read_csv('Data/database_main.csv')
-
-    #zip_query = int(zip_query)  # Convert to integer
-    #dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
-
-    state                             = dict_working.get('state')
-    avg_electricity_use_kwh           = dict_working.get('avg_electricity_use_kwh')
-    electricity_price                 = dict_working.get('electricity_price')
-    output_annual                     = dict_working.get('output_annual')
-    sizing_ratio                      = dict_working.get('sizing_ratio')
+def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query): 
+    state                              = dict_working.get('state')
+    avg_electricity_use_kwh            = dict_working.get('avg_electricity_use_kwh')
+    electricity_price                  = dict_working.get('electricity_price')
+    output_annual                      = dict_working.get('output_annual')
+    sizing_ratio                       = dict_working.get('sizing_ratio')
     #avg_electric_bill_monthly         = dict_working.get('avg_electric_bill_monthly')
     #natgas_price_USD_per_1000_cf_2021 = dict_working.get('natgas_price_USD_per_1000_cf_2021')
     #median_sqft_zip                   = dict_working.get('median_sqft_zip')
     #median_sqft_state                 = dict_working.get('median_sqft_state')
     #median_sqft_country               = dict_working.get('median_sqft_country')
-    avg_cost_per_kw                   = dict_working.get('avg_cost_per_kw')
-    status_quo_electricity            = dict_working.get('status_quo_electricity')
-    status_quo_natgas                 = dict_working.get('status_quo_natgas')
-    heatpump_electricity              = dict_working.get('heatpump_electricity')
-    avg_cost_before_heatpump          = dict_working.get('avg_cost_before_heatpump')
-    avg_cost_after_heatpump           = dict_working.get('avg_cost_after_heatpump')
-    avg_heatpump_savings              = dict_working.get('avg_heatpump_savings')
-    W_incentive_max_USD               = dict_working.get('W_incentive_max_USD')
-    incentive_per_W                   = dict_working.get('incentive_per_W')
-    percent_incentive_max_USD         = dict_working.get('percent_incentive_max_USD')
-    incentive_percent                 = dict_working.get('incentive_percent')
-    net_of_federal                    = dict_working.get('net_of_federal')
-    SREC_USD_kwh                      = dict_working.get('SREC_USD_kwh')
-    net_metering                      = dict_working.get('net_metering')
+    avg_cost_per_kw                    = dict_working.get('avg_cost_per_kw')
+    status_quo_electricity             = dict_working.get('status_quo_electricity')
+    status_quo_natgas                  = dict_working.get('status_quo_natgas')
+    heatpump_electricity               = dict_working.get('heatpump_electricity')
+    avg_cost_before_heatpump           = dict_working.get('avg_cost_before_heatpump')
+    avg_cost_after_heatpump            = dict_working.get('avg_cost_after_heatpump')
+    avg_heatpump_savings               = dict_working.get('avg_heatpump_savings')
+    W_incentive_max_USD                = dict_working.get('W_incentive_max_USD')
+    incentive_per_W                    = dict_working.get('incentive_per_W')
+    percent_incentive_max_USD          = dict_working.get('percent_incentive_max_USD')
+    incentive_percent                  = dict_working.get('incentive_percent')
+    net_of_federal                     = dict_working.get('net_of_federal')
+    SREC_USD_kwh                       = dict_working.get('SREC_USD_kwh')
+    net_metering                       = dict_working.get('net_metering')
 
     # Adjust elecrtricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -69,12 +61,9 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
 
     # Calculate recommended system size
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if heatpump_query == "yes":
+    if heatpump_query.lower() == "yes":
         electricity_use_kwh = electricity_use_kwh + heatpump_electricity
-        heat_pump = 'Yes'
         avg_electric_bill_monthly = electricity_use_kwh*electricity_price/12
-    else:
-        heat_pump = 'No'
 
     if net_metering == 1: #If the state has net metering...
         recommended_system_size_KW = electricity_use_kwh * sizing_ratio # e.g.: ~10,000 KWH * (1 KW / ~1000 KWH) = ~10 KW
@@ -96,23 +85,23 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
     # YEAR 1 production savings: equivalent to forgone electricity costs + SREC revenue
     year1_production_savings = NetMetering_eligible_production * electricity_price + SREC_eligible_production * SREC_USD_kwh
 
-    # Create a new column called '_20_year_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
-    _20_year_production_savings = 0
+    # Create a new column called 'total_production_savings' that is the 20 year production savings, taking into account a 2.2% annual increase in electricity prices
+    total_production_savings = 0
     TEMP_net_metering_price = electricity_price
     
     # YEAR 20 production savings
     year = 1 
-    while year <= NET_SAVINGS_YEARS:
-        _20_year_production_savings = _20_year_production_savings + NetMetering_eligible_production * TEMP_net_metering_price + SREC_eligible_production * SREC_USD_kwh
+    while year <= TOTAL_SAVINGS_YEARS:
+        total_production_savings = total_production_savings + NetMetering_eligible_production * TEMP_net_metering_price + SREC_eligible_production * SREC_USD_kwh
         TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
         year += 1
 
     # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
     if state == 'IL':
         if recommended_system_size_KW <= 10:
-            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
+            total_production_savings = total_production_savings + (TOTAL_SAVINGS_YEARS*system_output_annual/1000) * (78.51 + 82.22)/2 # For systems <= 10KW, get paid ~$80 per MWh of production over 15 years
         elif recommended_system_size_KW > 10:
-            _20_year_production_savings = _20_year_production_savings + (NET_SAVINGS_YEARS*system_output_annual/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
+            total_production_savings = total_production_savings + (TOTAL_SAVINGS_YEARS*system_output_annual/1000) * (66.39 + 71.89)/2 # For systems <= 10KW, get paid ~$70 per MWh of production over 15 years
 
 
     # Calculate system cost, net of solar incentives
@@ -141,8 +130,9 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
 
     # Calculate system cost, net of battery incentives
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    net_battery_cost = 0 # Add blank column for the cost of the battery after incentives
+    estimated_battery_cost = 0
     battery_incentives = 0 #Add blank column for battery incentives
+    net_battery_cost = 0 # Add blank column for the cost of the battery after incentives
 
     # If state has net metering, then we assume the homeowners get batteries, factoring in a 30% IRA federal rebate
     if net_metering == 0:
@@ -160,26 +150,32 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
             net_battery_cost = net_battery_cost - min(BATTERY_KWH*95, BATTERY_COST*0.5, 3000)
         battery_incentives = BATTERY_COST - net_battery_cost
         net_estimated_cost = net_estimated_cost + net_battery_cost
+        estimated_battery_cost = BATTERY_COST
 
 
     # Calculate loan payments and net savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    monthly_interest_payment = (net_estimated_cost * (DEFAULT_INTEREST_RATE/12)) / (1 - (1 + (DEFAULT_INTEREST_RATE/12))**(-12*DEFAULT_LOAN_TERM))
+    monthly_interest_payment = (net_estimated_cost * (loan_rate_query/12)) / (1 - (1 + (loan_rate_query/12))**(-12*loan_term_query))
     yearly_interest_payment = monthly_interest_payment*12
     year1_net_savings = year1_production_savings - yearly_interest_payment
-    _20yr_net_savings  = _20_year_production_savings - min(DEFAULT_LOAN_TERM, NET_SAVINGS_YEARS) * yearly_interest_payment #if the loan term is greater than the net savings years, then only want to subtract the interest payments for the net savings years
+    total_net_savings  = total_production_savings - min(loan_term_query, TOTAL_SAVINGS_YEARS) * yearly_interest_payment #if the loan term is greater than the net savings years, then only want to subtract the interest payments for the net savings years
 
 
 
     # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    if heatpump_query == "no": # Overwrite all values in the above keys to be None
+    if heatpump_query.lower() == "no": # Overwrite all values in the above keys to be None
         heatpump_electricity = None
         cost_before_heatpump = None
         cost_after_heatpump = None
         heatpump_savings = None
 
+    #convert zip_query back to string with length 5 if the integer is only 4 digits
+    zip_query = str(zip_query).zfill(5)
+
+
     # Round the variables with inline if statements
+    electric_bill_query         = round(electric_bill_query) if electric_bill_query is not None else electric_bill_query
     electricity_use_kwh         = round(electricity_use_kwh) if electricity_use_kwh is not None else electricity_use_kwh
     recommended_system_size_KW  = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
     system_output_annual        = round(system_output_annual) if system_output_annual is not None else system_output_annual
@@ -194,53 +190,92 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, sqft_query, heatp
     
     net_metering                = round(net_metering) if net_metering is not None else net_metering
     year1_production_savings    = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
-    _20_year_production_savings = round(_20_year_production_savings) if _20_year_production_savings is not None else _20_year_production_savings
+    total_production_savings = round(total_production_savings) if total_production_savings is not None else total_production_savings
 
+    TOTAL_SAVINGS_YEARS         = round(TOTAL_SAVINGS_YEARS) if TOTAL_SAVINGS_YEARS is not None else TOTAL_SAVINGS_YEARS
+    loan_term_query             = round(loan_term_query) if loan_term_query is not None else loan_term_query
+    loan_rate_query             = round(loan_rate_query, 3) if loan_rate_query is not None else loan_rate_query
+    monthly_interest_payment    = round(monthly_interest_payment) if monthly_interest_payment is not None else monthly_interest_payment
     yearly_interest_payment     = round(yearly_interest_payment) if yearly_interest_payment is not None else yearly_interest_payment
     year1_net_savings           = round(year1_net_savings) if year1_net_savings is not None else year1_net_savings
-    _20yr_net_savings           = round(_20yr_net_savings) if _20yr_net_savings is not None else _20yr_net_savings  # Assuming '_20yr_net_savings' is the cumulative savings
+    total_net_savings           = round(total_net_savings) if total_net_savings is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
     
     cost_before_heatpump        = round(cost_before_heatpump) if cost_before_heatpump is not None else cost_before_heatpump
     cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
     heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
 
-    result_JSON = {
-        'query'                          : {
-            'zip_query'                  : zip_query,
-            'state'                      : state,
-            'electric_bill_query'        : electric_bill_query,
-            'heatpump_query'             : heatpump_query,
-            'sqft_query'                 : sqft_query,
+    result_JSON                                  = {
+        'query'                                  : {
+            'zip_query'                          : zip_query,
+            'electric_bill_query'                : electric_bill_query,
+            'loan_term_query'                    : loan_term_query,
+            'loan_rate_query'                    : loan_rate_query,
+            'sqft_query'                         : sqft_query,
+            'heatpump_query'                     : heatpump_query,
         },
-        'electricity_section'            : {
-            'electricity_use_kwh'        : electricity_use_kwh,
-            'recommended_system_size_KW' : recommended_system_size_KW,
-            'system_output_annual'       : system_output_annual,
+        'location'                                : {
+            'state'                              : state,
         },
-        'solar_cost_and_incentives'      : {
-            'estimated_cost'             : estimated_cost,
-            'federal_incentive'          : federal_incentive,
-            'state_incentive_by_W'       : state_incentive_by_W,
-            'state_incentive_by_percent' : state_incentive_by_percent,
-            'net_battery_cost'           : net_battery_cost,
-            'battery_incentives'         : battery_incentives,
-            'net_estimated_cost'         : net_estimated_cost,
+        'electricity_section'                    : {
+            'electricity_use_kwh'                : electricity_use_kwh,
         },
-        'solar_savings'                  : {
-            'net_metering'               : net_metering,
-            'year1_production_savings'   : year1_production_savings,
-            '_20_year_production_savings': _20_year_production_savings,
-            'yearly_interest_payment'    : yearly_interest_payment,
-            'year1_net_savings'          : year1_net_savings,
-            '_20yr_net_savings'          : _20yr_net_savings,
+        'solar'                                  : {
+            'recommended_solar_size'             : recommended_system_size_KW,
+            'system_output_annual'               : system_output_annual,
+            'net_metering'                       : 'yes' if net_metering == 1 else 'no',
+            'has_battery'                        : 'yes' if net_metering == 0 else 'no',
+            'cost'                               : {
+                'estimated_solar_cost'           : estimated_cost,
+                'estimated_battery_cost'         : estimated_battery_cost,
+                'incentives'                     : {
+                    'federal_incentive'          : federal_incentive,
+                    'state_incentive_by_watt'    : state_incentive_by_W,
+                    'state_incentive_by_percent' : state_incentive_by_percent,
+                    'battery_incentives'         : battery_incentives,
+                },
+                'net_battery_cost'               : net_battery_cost,
+                'net_solar_cost'                 : net_estimated_cost - net_battery_cost,
+                'net_system_cost'                : net_estimated_cost,
+            },
+                'loan_details'                   : {
+                    'loan_amount'                : net_estimated_cost,
+                    'loan_term'                  : loan_term_query,
+                    'interest_rate'              : loan_rate_query,
+                    'monthly_interest_payment'   : monthly_interest_payment,
+                    'yearly_interest_payment'    : yearly_interest_payment,
+                },
+            'savings'                            : {
+                'production_savings'             : [
+                    {
+                        'year': 1,
+                        'value': year1_production_savings,
+                    },
+                    {
+                        'year': TOTAL_SAVINGS_YEARS,
+                        'value': total_production_savings,
+                    },
+                ],
+                'net_savings'                    : [
+                    {
+                        'year': 1,
+                        'value': year1_net_savings,
+                    },
+                    {
+                        'year': TOTAL_SAVINGS_YEARS,
+                        'value': total_net_savings,
+                    },
+                ],
+                
+            },
         },
-        'heatpump'                       : {
-            'heat_pump'                  : heat_pump,
-            'cost_before_heatpump'       : cost_before_heatpump,
-            'cost_after_heatpump'        : cost_after_heatpump,
-            'heatpump_savings'           : heatpump_savings,
+        'heatpump'                               : {
+            'heat_pump'                          : heatpump_query,
+            'cost_before_heatpump'               : cost_before_heatpump,
+            'cost_after_heatpump'                : cost_after_heatpump,
+            'heatpump_savings'                   : heatpump_savings,
         },
     }
+
 
     result_JSON_str = json.dumps(result_JSON, indent=2)
 
