@@ -3,7 +3,7 @@ import json
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
-TOTAL_SAVINGS_YEARS                = 20
+TOTAL_SAVINGS_YEARS      = 20
 
 BATTERY_COUNT = 1
 BATTERY_COST  = 14200 # Tesla Powerwall
@@ -192,7 +192,6 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     year1_production_savings    = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
     total_production_savings = round(total_production_savings) if total_production_savings is not None else total_production_savings
 
-    TOTAL_SAVINGS_YEARS         = round(TOTAL_SAVINGS_YEARS) if TOTAL_SAVINGS_YEARS is not None else TOTAL_SAVINGS_YEARS
     loan_term_query             = round(loan_term_query) if loan_term_query is not None else loan_term_query
     loan_rate_query             = round(loan_rate_query, 3) if loan_rate_query is not None else loan_rate_query
     monthly_interest_payment    = round(monthly_interest_payment) if monthly_interest_payment is not None else monthly_interest_payment
@@ -204,64 +203,64 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
     heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
 
-    result_JSON                                  = {
-        'query'                                  : {
-            'zip_query'                          : zip_query,
-            'electric_bill_query'                : electric_bill_query,
-            'loan_term_query'                    : loan_term_query,
-            'loan_rate_query'                    : loan_rate_query,
-            'sqft_query'                         : sqft_query,
-            'heatpump_query'                     : heatpump_query,
+    result_JSON                                 = {
+        'query'                                 : {
+            'zip_query'                         : zip_query,
+            'electric_bill_query'               : electric_bill_query,
+            'loan_term_query'                   : loan_term_query,
+            'loan_rate_query'                   : loan_rate_query,
+            'sqft_query'                        : sqft_query,
+            'heatpump_query'                    : heatpump_query,
         },
-        'location'                                : {
-            'state'                              : state,
+        'location'                              : {
+            'state'                             : state,
         },
-        'electricity_section'                    : {
-            'electricity_use_kwh'                : electricity_use_kwh,
+        'electricity_section'                   : {
+            'electricity_use_kwh'               : electricity_use_kwh,
         },
-        'solar'                                  : {
-            'recommended_solar_size'             : recommended_system_size_KW,
-            'system_output_annual'               : system_output_annual,
-            'net_metering'                       : 'yes' if net_metering == 1 else 'no',
-            'has_battery'                        : 'yes' if net_metering == 0 else 'no',
-            'cost'                               : {
-                'estimated_solar_cost'           : estimated_cost,
-                'estimated_battery_cost'         : estimated_battery_cost,
-                'incentives'                     : {
-                    'federal_incentive'          : federal_incentive,
-                    'state_incentive_by_watt'    : state_incentive_by_W,
-                    'state_incentive_by_percent' : state_incentive_by_percent,
-                    'battery_incentives'         : battery_incentives,
+        'solar'                                 : {
+            'recommended_solar_size'            : recommended_system_size_KW,
+            'system_output_annual'              : system_output_annual,
+            'net_metering'                      : 'yes' if net_metering == 1 else 'no',
+            'has_battery'                       : 'yes' if net_metering == 0 else 'no',
+            'cost'                              : {
+                'estimated_solar_cost'          : estimated_cost,
+                'estimated_battery_cost'        : estimated_battery_cost,
+                'incentives'                    : {
+                    'federal_incentive'         : federal_incentive,
+                    'state_incentive_by_watt'   : state_incentive_by_W,
+                    'state_incentive_by_percent': state_incentive_by_percent,
+                    'battery_incentives'        : battery_incentives,
                 },
-                'net_battery_cost'               : net_battery_cost,
-                'net_solar_cost'                 : net_estimated_cost - net_battery_cost,
-                'net_system_cost'                : net_estimated_cost,
+                'net_battery_cost'              : net_battery_cost,
+                'net_solar_cost'                : net_estimated_cost - net_battery_cost,
+                'net_system_cost'               : net_estimated_cost,
             },
-                'loan_details'                   : {
-                    'loan_amount'                : net_estimated_cost,
-                    'loan_term'                  : loan_term_query,
-                    'interest_rate'              : loan_rate_query,
-                    'monthly_interest_payment'   : monthly_interest_payment,
-                    'yearly_interest_payment'    : yearly_interest_payment,
+                'loan_details'                  : {
+                    'loan_amount'               : net_estimated_cost,
+                    'loan_term'                 : loan_term_query,
+                    'interest_rate'             : loan_rate_query,
+                    'monthly_interest_payment'  : monthly_interest_payment,
+                    'yearly_interest_payment'   : yearly_interest_payment,
                 },
-            'savings'                            : {
-                'production_savings'             : [
+            'savings'                           : {
+                'production_savings': [
                     {
-                        'year': 1,
+                        'year' : 1,
                         'value': year1_production_savings,
                     },
                     {
-                        'year': TOTAL_SAVINGS_YEARS,
+                        'year' : TOTAL_SAVINGS_YEARS,
                         'value': total_production_savings,
                     },
                 ],
-                'net_savings'                    : [
+                'net_savings': [
                     {
-                        'year': 1,
+                        'year' : 1,
                         'value': year1_net_savings,
                     },
                     {
-                        'year': TOTAL_SAVINGS_YEARS,
+                        'year' : TOTAL_SAVINGS_YEARS,
                         'value': total_net_savings,
                     },
                 ],
@@ -275,7 +274,6 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
             'heatpump_savings'                   : heatpump_savings,
         },
     }
-
 
     result_JSON_str = json.dumps(result_JSON, indent=2)
 
