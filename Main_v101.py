@@ -5,6 +5,9 @@ from heatpumps_v100 import CallHeatPumpAPI
 ENERGY_PRICE_GROWTH_RATE = 1.022
 TOTAL_SAVINGS_YEARS      = 20
 
+DEFAULT_LOAN_TERM = 20
+DEFAULT_INTEREST_RATE = 0.06
+
 BATTERY_COUNT = 1
 BATTERY_COST  = 14200 # Tesla Powerwall
 BATTERY_KWH   = 13.5 # Tesla Powerwall capacity
@@ -40,6 +43,8 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     SREC_USD_kwh                      = dict_working.get('SREC_USD_kwh')
     net_metering                      = dict_working.get('net_metering')
 
+    loan_term     = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
+    loan_rate     = float(loan_rate_query) if loan_rate_query is not None else DEFAULT_INTEREST_RATE
 
     # Adjust electricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,10 +168,10 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
 
     # Calculate loan payments and net savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    monthly_interest_payment = (net_estimated_cost * (loan_rate_query/12)) / (1 - (1 + (loan_rate_query/12))**(-12*loan_term_query))
+    monthly_interest_payment = (net_estimated_cost * (loan_rate/12)) / (1 - (1 + (loan_rate/12))**(-12*loan_term))
     yearly_interest_payment = monthly_interest_payment*12
     year1_net_savings = year1_production_savings - yearly_interest_payment
-    total_net_savings  = total_production_savings - min(loan_term_query, TOTAL_SAVINGS_YEARS) * yearly_interest_payment #if the loan term is greater than the net savings years, then only want to subtract the interest payments for the net savings years
+    total_net_savings  = total_production_savings - min(loan_term, TOTAL_SAVINGS_YEARS) * yearly_interest_payment #if the loan term is greater than the net savings years, then only want to subtract the interest payments for the net savings years
 
 
 
@@ -184,10 +189,10 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
 
     # Round the variables with inline if statements
     recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
-    loan_rate_query            = round(loan_rate_query, 3) if loan_rate_query            is not None else loan_rate_query
+    loan_rate            = round(loan_rate, 3) if loan_rate            is not None else loan_rate
     
     electric_bill_query        = round(electric_bill_query)        if electric_bill_query        is not None else electric_bill_query
-    sqft                       = round(sqft_query)                 if sqft_query                 is not None else sqft_query
+    sqft                       = round(sqft)                       if sqft                       is not None else sqft
     electricity_use_kwh        = round(electricity_use_kwh)        if electricity_use_kwh        is not None else electricity_use_kwh
     system_output_annual       = round(system_output_annual)       if system_output_annual       is not None else system_output_annual
     
@@ -203,7 +208,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     year1_production_savings   = round(year1_production_savings)   if year1_production_savings   is not None else year1_production_savings
     total_production_savings   = round(total_production_savings)   if total_production_savings   is not None else total_production_savings
 
-    loan_term_query            = round(loan_term_query)            if loan_term_query            is not None else loan_term_query
+    loan_term            = round(loan_term)            if loan_term            is not None else loan_term
     monthly_interest_payment   = round(monthly_interest_payment)   if monthly_interest_payment   is not None else monthly_interest_payment
     yearly_interest_payment    = round(yearly_interest_payment)    if yearly_interest_payment    is not None else yearly_interest_payment
     year1_net_savings          = round(year1_net_savings)          if year1_net_savings          is not None else year1_net_savings
@@ -252,8 +257,8 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
             },
             'loan_detail'                       : {
                 'loan_amount'                   : net_estimated_cost,
-                'loan_term'                     : loan_term_query,
-                'interest_rate'                 : loan_rate_query,
+                'loan_term'                     : loan_term,
+                'interest_rate'                 : loan_rate,
                 'monthly_interest_payment'      : monthly_interest_payment,
                 'yearly_interest_payment'       : yearly_interest_payment,
                 },
@@ -281,12 +286,13 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
                 
             },
         },
-        'heatpump'                               : {
-            'heat_pump'                          : heatpump_query,
-            'square_footage'                     : sqft,
-            'cost_before_heatpump'               : cost_before_heatpump,
-            'cost_after_heatpump'                : cost_after_heatpump,
-            'heatpump_savings'                   : heatpump_savings,
+        'heatpump'                     : {
+            'heat_pump'                : heatpump_query,
+            'square_footage'           : sqft,
+            'heating_fuel'             : 'natural_gas',
+            'hvac_cost_before_heatpump': cost_before_heatpump,
+            'hvac_cost_after_heatpump' : cost_after_heatpump,
+            'heatpump_savings'         : heatpump_savings,
         },
     }
 

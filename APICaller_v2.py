@@ -28,8 +28,12 @@ def APIRequest():
     zip_query           = int(zip_query) if zip_query is not None else None
     electric_bill_query = float(electric_bill_query) if electric_bill_query is not None else None
     sqft_query          = float(sqft_query) if sqft_query is not None else None
-    loan_term_query     = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
-    loan_rate_query     = float(loan_rate_query) if loan_rate_query is not None else DEFAULT_INTEREST_RATE
+
+    # Error handling
+    if zip_query is None:
+        return "Error: zip code is None"
+
+    heatpump_query = heatpump_query if heatpump_query is not None else "no"
 
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
