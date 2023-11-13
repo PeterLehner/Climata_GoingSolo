@@ -1,5 +1,5 @@
-from collections import OrderedDict
 import json
+from heatpumps_v100 import CallHeatPumpAPI
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
@@ -15,32 +15,33 @@ BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
 #def SavingsModel(df_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
 def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query): 
-    state                              = dict_working.get('state')
-    avg_electricity_use_kwh            = dict_working.get('avg_electricity_use_kwh')
-    electricity_price                  = dict_working.get('electricity_price')
-    output_annual                      = dict_working.get('output_annual')
-    sizing_ratio                       = dict_working.get('sizing_ratio')
-    #avg_electric_bill_monthly         = dict_working.get('avg_electric_bill_monthly')
-    #natgas_price_USD_per_1000_cf_2021 = dict_working.get('natgas_price_USD_per_1000_cf_2021')
-    #median_sqft_zip                   = dict_working.get('median_sqft_zip')
-    #median_sqft_state                 = dict_working.get('median_sqft_state')
-    #median_sqft_country               = dict_working.get('median_sqft_country')
-    avg_cost_per_kw                    = dict_working.get('avg_cost_per_kw')
-    status_quo_electricity             = dict_working.get('status_quo_electricity')
-    status_quo_natgas                  = dict_working.get('status_quo_natgas')
-    heatpump_electricity               = dict_working.get('heatpump_electricity')
-    avg_cost_before_heatpump           = dict_working.get('avg_cost_before_heatpump')
-    avg_cost_after_heatpump            = dict_working.get('avg_cost_after_heatpump')
-    avg_heatpump_savings               = dict_working.get('avg_heatpump_savings')
-    W_incentive_max_USD                = dict_working.get('W_incentive_max_USD')
-    incentive_per_W                    = dict_working.get('incentive_per_W')
-    percent_incentive_max_USD          = dict_working.get('percent_incentive_max_USD')
-    incentive_percent                  = dict_working.get('incentive_percent')
-    net_of_federal                     = dict_working.get('net_of_federal')
-    SREC_USD_kwh                       = dict_working.get('SREC_USD_kwh')
-    net_metering                       = dict_working.get('net_metering')
+    state                             = dict_working.get('state')
+    avg_electricity_use_kwh           = dict_working.get('avg_electricity_use_kwh')
+    electricity_price                 = dict_working.get('electricity_price')
+    output_annual                     = dict_working.get('output_annual')
+    sizing_ratio                      = dict_working.get('sizing_ratio')
+    #avg_electric_bill_monthly        = dict_working.get('avg_electric_bill_monthly')
+    natgas_price_USD_per_1000_cf_2021 = dict_working.get('natgas_price_USD_per_1000_cf_2021')
+    median_sqft_zip                   = dict_working.get('median_sqft_zip')
+    median_sqft_state                 = dict_working.get('median_sqft_state')
+    median_sqft_country               = dict_working.get('median_sqft_country')
+    avg_cost_per_kw                   = dict_working.get('avg_cost_per_kw')
+    status_quo_electricity_cooling    = dict_working.get('status_quo_electricity')
+    status_quo_natgas                 = dict_working.get('status_quo_natgas')
+    heatpump_electricity              = dict_working.get('heatpump_electricity')
+    avg_cost_before_heatpump          = dict_working.get('avg_cost_before_heatpump')
+    avg_cost_after_heatpump           = dict_working.get('avg_cost_after_heatpump')
+    avg_heatpump_savings              = dict_working.get('avg_heatpump_savings')
+    W_incentive_max_USD               = dict_working.get('W_incentive_max_USD')
+    incentive_per_W                   = dict_working.get('incentive_per_W')
+    percent_incentive_max_USD         = dict_working.get('percent_incentive_max_USD')
+    incentive_percent                 = dict_working.get('incentive_percent')
+    net_of_federal                    = dict_working.get('net_of_federal')
+    SREC_USD_kwh                      = dict_working.get('SREC_USD_kwh')
+    net_metering                      = dict_working.get('net_metering')
 
-    # Adjust elecrtricity use
+
+    # Adjust electricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if electric_bill_query is not None:
         electricity_use_kwh = (12*electric_bill_query)/electricity_price #Calcuate a homeowners electric use based on their electric bill.
@@ -50,9 +51,16 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
 
     # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if sqft_query is not None:
-        print("TO DO")
-        #CallKelvinAPI(dict_working, sqft_query) # If a sqft is passed into API, call the Kelvin model # TO DO
+    sqft = sqft_query or median_sqft_zip or median_sqft_state or median_sqft_country
+
+    if heatpump_query == 'yes' and sqft_query is not None:
+        result_tuple = CallHeatPumpAPI(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
+        status_quo_electricity_cooling = result_tuple[0]
+        status_quo_natgas              = result_tuple[1]
+        cost_before_heatpump           = result_tuple[2]
+        heatpump_electricity           = result_tuple[3]
+        cost_after_heatpump            = result_tuple[4]
+        heatpump_savings               = result_tuple[5]
     else: #just use the Kelvin results for the average sqft for the zip code
         cost_before_heatpump = avg_cost_before_heatpump
         cost_after_heatpump = avg_cost_after_heatpump
@@ -175,42 +183,47 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
 
 
     # Round the variables with inline if statements
-    electric_bill_query         = round(electric_bill_query) if electric_bill_query is not None else electric_bill_query
-    electricity_use_kwh         = round(electricity_use_kwh) if electricity_use_kwh is not None else electricity_use_kwh
-    recommended_system_size_KW  = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
-    system_output_annual        = round(system_output_annual) if system_output_annual is not None else system_output_annual
+    electric_bill_query        = round(electric_bill_query) if electric_bill_query is not None else electric_bill_query
+    sqft                       = round(sqft_query) if sqft_query is not None else sqft_query
+    electricity_use_kwh        = round(electricity_use_kwh) if electricity_use_kwh is not None else electricity_use_kwh
+    recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
+    system_output_annual       = round(system_output_annual) if system_output_annual is not None else system_output_annual
     
-    estimated_cost              = round(estimated_cost) if estimated_cost is not None else estimated_cost
-    federal_incentive           = round(federal_incentive) if federal_incentive is not None else federal_incentive
-    state_incentive_by_W        = round(state_incentive_by_W) if state_incentive_by_W is not None else state_incentive_by_W
-    state_incentive_by_percent  = round(state_incentive_by_percent) if state_incentive_by_percent is not None else state_incentive_by_percent
-    net_battery_cost            = round(net_battery_cost) if net_battery_cost is not None else net_battery_cost
-    battery_incentives          = round(battery_incentives) if battery_incentives is not None else battery_incentives
-    net_estimated_cost          = round(net_estimated_cost) if net_estimated_cost is not None else net_estimated_cost
+    estimated_cost             = round(estimated_cost) if estimated_cost is not None else estimated_cost
+    federal_incentive          = round(federal_incentive) if federal_incentive is not None else federal_incentive
+    state_incentive_by_W       = round(state_incentive_by_W) if state_incentive_by_W is not None else state_incentive_by_W
+    state_incentive_by_percent = round(state_incentive_by_percent) if state_incentive_by_percent is not None else state_incentive_by_percent
+    net_battery_cost           = round(net_battery_cost) if net_battery_cost is not None else net_battery_cost
+    battery_incentives         = round(battery_incentives) if battery_incentives is not None else battery_incentives
+    net_estimated_cost         = round(net_estimated_cost) if net_estimated_cost is not None else net_estimated_cost
     
-    net_metering                = round(net_metering) if net_metering is not None else net_metering
-    year1_production_savings    = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
-    total_production_savings = round(total_production_savings) if total_production_savings is not None else total_production_savings
+    net_metering               = round(net_metering) if net_metering is not None else net_metering
+    year1_production_savings   = round(year1_production_savings) if year1_production_savings is not None else year1_production_savings
+    total_production_savings   = round(total_production_savings) if total_production_savings is not None else total_production_savings
 
-    loan_term_query             = round(loan_term_query) if loan_term_query is not None else loan_term_query
-    loan_rate_query             = round(loan_rate_query, 3) if loan_rate_query is not None else loan_rate_query
-    monthly_interest_payment    = round(monthly_interest_payment) if monthly_interest_payment is not None else monthly_interest_payment
-    yearly_interest_payment     = round(yearly_interest_payment) if yearly_interest_payment is not None else yearly_interest_payment
-    year1_net_savings           = round(year1_net_savings) if year1_net_savings is not None else year1_net_savings
-    total_net_savings           = round(total_net_savings) if total_net_savings is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
+    loan_term_query            = round(loan_term_query) if loan_term_query is not None else loan_term_query
+    loan_rate_query            = round(loan_rate_query, 3) if loan_rate_query is not None else loan_rate_query
+    monthly_interest_payment   = round(monthly_interest_payment) if monthly_interest_payment is not None else monthly_interest_payment
+    yearly_interest_payment    = round(yearly_interest_payment) if yearly_interest_payment is not None else yearly_interest_payment
+    year1_net_savings          = round(year1_net_savings) if year1_net_savings is not None else year1_net_savings
+    total_net_savings          = round(total_net_savings) if total_net_savings is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
     
-    cost_before_heatpump        = round(cost_before_heatpump) if cost_before_heatpump is not None else cost_before_heatpump
-    cost_after_heatpump         = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
-    heatpump_savings            = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
+    cost_before_heatpump       = round(cost_before_heatpump) if cost_before_heatpump is not None else cost_before_heatpump
+    cost_after_heatpump        = round(cost_after_heatpump) if cost_after_heatpump is not None else cost_after_heatpump
+    heatpump_savings           = round(heatpump_savings) if heatpump_savings is not None else heatpump_savings
 
     result_JSON                                 = {
         'query'                                 : {
-            'zip_query'                         : zip_query,
-            'electric_bill_query'               : electric_bill_query,
-            'loan_term_query'                   : loan_term_query,
-            'loan_rate_query'                   : loan_rate_query,
-            'sqft_query'                        : sqft_query,
-            'heatpump_query'                    : heatpump_query,
+            'zip'                               : zip_query,
+            'solar'                             : {
+                'electric_bill'                 : electric_bill_query,
+                'loan_term'                     : loan_term_query,
+                'loan_rate'                     : loan_rate_query,
+                },
+            'heatpump'                          : {
+                'heatpump'                      : heatpump_query,
+                'square_footage'                : sqft_query,
+            },
         },
         'location'                              : {
             'state'                             : state,
@@ -223,7 +236,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
             'system_output_annual'              : system_output_annual,
             'net_metering'                      : 'yes' if net_metering == 1 else 'no',
             'has_battery'                       : 'yes' if net_metering == 0 else 'no',
-            'cost'                              : {
+            'cost_detail'                       : {
                 'estimated_solar_cost'          : estimated_cost,
                 'estimated_battery_cost'        : estimated_battery_cost,
                 'incentives'                    : {
@@ -236,15 +249,15 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
                 'net_solar_cost'                : net_estimated_cost - net_battery_cost,
                 'net_system_cost'               : net_estimated_cost,
             },
-                'loan_details'                  : {
-                    'loan_amount'               : net_estimated_cost,
-                    'loan_term'                 : loan_term_query,
-                    'interest_rate'             : loan_rate_query,
-                    'monthly_interest_payment'  : monthly_interest_payment,
-                    'yearly_interest_payment'   : yearly_interest_payment,
+            'loan_detail'                       : {
+                'loan_amount'                   : net_estimated_cost,
+                'loan_term'                     : loan_term_query,
+                'interest_rate'                 : loan_rate_query,
+                'monthly_interest_payment'      : monthly_interest_payment,
+                'yearly_interest_payment'       : yearly_interest_payment,
                 },
-            'savings'                           : {
-                'production_savings': [
+            'savings_detail'                    : {
+                'production_savings'            : [
                     {
                         'year' : 1,
                         'value': year1_production_savings,
@@ -269,6 +282,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
         },
         'heatpump'                               : {
             'heat_pump'                          : heatpump_query,
+            'square_footage'                     : sqft,
             'cost_before_heatpump'               : cost_before_heatpump,
             'cost_after_heatpump'                : cost_after_heatpump,
             'heatpump_savings'                   : heatpump_savings,

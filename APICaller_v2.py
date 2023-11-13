@@ -31,18 +31,15 @@ def APIRequest():
     loan_term_query     = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
     loan_rate_query     = float(loan_rate_query) if loan_rate_query is not None else DEFAULT_INTEREST_RATE
 
-    # Filter the dataframe to only the rows with the matching zip_query
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
-    loan_term_query     = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
     SavingsModelOutput = SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
     
-    # Calculate the run time of the function
     run_time = t_start-time.time()
     time_dict = {'Function run time' : run_time,}
+    #return time_dict
 
-    #return {'SavingsModelOutput': SavingsModelOutput, 'time_dict': time_dict}
     return SavingsModelOutput
 
 if __name__ == '__main__':
-    app.run(debug=False) #TURN OFF DEBUG IN PRODUCTION
+    app.run(debug=True) #TURN OFF DEBUG IN PRODUCTION
