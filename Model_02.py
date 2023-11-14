@@ -1,5 +1,5 @@
 import json
-from heatpumps_v100 import CallHeatPumpAPI
+from Heatpumps_01 import CallHeatPumpAPI
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022

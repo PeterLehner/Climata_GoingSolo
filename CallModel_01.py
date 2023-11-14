@@ -1,16 +1,13 @@
-from flask import Flask, request
-from Main_v101 import SavingsModel
+from flask import request
+from Model_02 import SavingsModel
 import pandas as pd
 import time
 
 df_working = pd.read_csv('Data/database_main.csv')
 
-app = Flask(__name__)
-@app.route('/')
-
-def APIRequest():
+def CallModel():
     t_start = time.time()
-    
+
     # Get the query parameters from the URL
     zip_query           = request.args.get('zip_query')
     electric_bill_query = request.args.get('electric_bill_query')
@@ -39,6 +36,3 @@ def APIRequest():
     #return time_dict
 
     return SavingsModelOutput
-
-if __name__ == '__main__':
-    app.run(debug=False) #TURN OFF DEBUG IN PRODUCTION

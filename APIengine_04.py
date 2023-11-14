@@ -1,0 +1,35 @@
+from flask import Flask, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from APIkeys_01 import validate_trial_key, validate_full_key
+from CallModel_01 import CallModel
+
+app = Flask(__name__)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["1000 per day", "100 per hour"],
+)
+
+@app.route('/trial', methods=['GET'])
+@limiter.limit("10 per minute") #has to go after the route decorator
+def trial_endpoint():
+    api_key = request.headers.get('X-API-Key')
+    if not api_key or not validate_trial_key(api_key):
+        return "Unauthorized: Invalid API key", 401 
+
+    return CallModel()
+
+@app.route('/full', methods=['GET'])
+@limiter.limit("100 per minute") #has to go after the route decorator
+def full_endpoint():
+    api_key = request.headers.get('X-API-Key')
+    if not api_key or not validate_full_key(api_key):
+        return "Unauthorized: Invalid API key", 401 
+    
+    return CallModel()
+
+
+if __name__ == '__main__':
+    app.run(debug=False)

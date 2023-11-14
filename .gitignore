@@ -8,12 +8,9 @@ Trash/
 Data/.DS_Store
 Data/Zips/.DS_Store
 
-APICaller_v1.py
-Main_v3.py
-Main_v100.py
-Main_vAPI.py
-MergeCachedKelvinOutput.py
-
-testing_workspace.py
-testing_workspace2.py
-Speedtest.ipynb
+_example_api.py
+_testing_workspace.py
+APlengine_01.py
+APlengine_02.py
+APlengine_03.py
+Model_01.py
