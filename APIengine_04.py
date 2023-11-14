@@ -4,16 +4,18 @@ from flask_limiter.util import get_remote_address
 from APIkeys_01 import validate_trial_key, validate_full_key
 from CallModel_01 import CallModel
 
+
 app = Flask(__name__)
 
 limiter = Limiter(
     get_remote_address,
     app=app,
     default_limits=["1000 per day", "100 per hour"],
+    storage_uri="memory://"
 )
 
 @app.route('/trial', methods=['GET'])
-@limiter.limit("10 per minute") #has to go after the route decorator
+@limiter.limit("1 per minute") #has to go after the route decorator
 def trial_endpoint():
     api_key = request.headers.get('X-API-Key')
     if not api_key or not validate_trial_key(api_key):
@@ -32,4 +34,4 @@ def full_endpoint():
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
