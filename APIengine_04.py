@@ -2,29 +2,23 @@ from flask import Flask, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from APIkeys_01 import validate_trial_key, validate_full_key
-from CallModel_01 import CallModel
+from CallModel_01 import CallModel_01
 import os
 import redis
 
-app = Flask(__name__)
-
-REDIS_RENDER_URL = "redis://red-cl9tkmto7jlc73fjaeog:6379"
-REDIS_LOCAL_URL = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
-
-redis_url = REDIS_RENDER_URL
-
 # Connect to your internal Redis instance using the REDIS_URL environment variable
 # The REDIS_URL is set to the internal Redis URL e.g. redis://red-343245ndffg023:6379
-r = redis.from_url(REDIS_RENDER_URL)
-r.set('key', 'redis-py')
-r.get('key')
-
-# Check Redis connection status
+REDIS_RENDER = "redis://red-cl9tkmto7jlc73fjaeog:6379"
+REDIS_LOCAL  = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
+redis_url = REDIS_LOCAL
+redis_connection = redis.from_url(redis_url)
 try:
-    r.ping()
+    redis_connection.ping()
     print("Connected to Redis successfully!")
 except redis.ConnectionError as e:
     print(f"Error connecting to Redis: {e}")
+
+app = Flask(__name__)
 
 limiter = Limiter(
   get_remote_address,
@@ -35,22 +29,26 @@ limiter = Limiter(
   strategy="fixed-window", # or "moving-window"
 )
 
-@app.route('/trial', methods=['GET'])
-@limiter.limit("1 per hour") #has to go after the route decorator
+
+#Print limiter storage info
+print(limiter.storage)
+
+@app.route('/v1/trial', methods=['GET'])
+@limiter.limit("2 per hour") #has to go after the route decorator
 def trial_endpoint():
     api_key = request.headers.get('X-API-Key')
     if not api_key or not validate_trial_key(api_key):
         return "Unauthorized: Invalid API key", 401 
-    return CallModel()
+    return CallModel_01()
 
-@app.route('/full', methods=['GET'])
+@app.route('/v1/full', methods=['GET'])
 @limiter.limit("1000 per hour") #has to go after the route decorator
 def full_endpoint():
     api_key = request.headers.get('X-API-Key')
     if not api_key or not validate_full_key(api_key):
         return "Unauthorized: Invalid API key", 401 
-    return CallModel()
+    return CallModel_01()
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

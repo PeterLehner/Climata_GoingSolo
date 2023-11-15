@@ -5,7 +5,7 @@ import time
 
 df_working = pd.read_csv('Data/database_main.csv')
 
-def CallModel():
+def CallModel_01():
     t_start = time.time()
 
     # Get the query parameters from the URL
