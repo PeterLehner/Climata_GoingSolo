@@ -15,7 +15,7 @@ redis_url = REDIS_RENDER_URL
 
 # Connect to your internal Redis instance using the REDIS_URL environment variable
 # The REDIS_URL is set to the internal Redis URL e.g. redis://red-343245ndffg023:6379
-r = redis.from_url(os.environ['REDIS_URL'])
+r = redis.from_url(os.environ[REDIS_RENDER_URL])
 r.set('key', 'redis-py')
 r.get('key')
 
