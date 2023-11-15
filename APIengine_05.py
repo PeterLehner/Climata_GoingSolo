@@ -21,8 +21,8 @@ def full_endpoint_v1():
 
 REDIS_ON_RENDER = "redis://red-cl9tkmto7jlc73fjaeog:6379"
 REDIS_MAC = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
-redis_url = REDIS_MAC
-redis_connection = redis.from_url(REDIS_ON_RENDER)
+redis_url = REDIS_ON_RENDER
+redis_connection = redis.from_url(redis_url)
 try:
     redis_connection.ping()
     print("Connected to Redis successfully!")

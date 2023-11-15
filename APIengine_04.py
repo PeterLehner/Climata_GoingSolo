@@ -8,9 +8,9 @@ import redis
 
 # Connect to your internal Redis instance using the REDIS_URL environment variable
 # The REDIS_URL is set to the internal Redis URL e.g. redis://red-343245ndffg023:6379
-REDIS_RENDER = "redis://red-cl9tkmto7jlc73fjaeog:6379"
-REDIS_LOCAL  = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
-redis_url = REDIS_LOCAL
+REDIS_ON_RENDER = "redis://red-cl9tkmto7jlc73fjaeog:6379"
+REDIS_MAC = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
+redis_url = REDIS_MAC
 redis_connection = redis.from_url(redis_url)
 try:
     redis_connection.ping()
