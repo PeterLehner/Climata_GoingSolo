@@ -4,7 +4,6 @@ goingsolovirtualenvironment1/
 Trash/
 
 .DS_Store
-
 Data/.DS_Store
 Data/Zips/.DS_Store
 
@@ -18,3 +17,5 @@ Model_01.py
 redistest.py
 redistest2.py
 RequestAPI.py
+
+local_*

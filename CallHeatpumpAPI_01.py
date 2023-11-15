@@ -7,7 +7,7 @@ sqft = 1999
 natgas_price_USD_per_1000_cf_2021 = 16.31
 electricity_price = 0.12
 
-def CallHeatPumpAPI(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021):
+def call_heapump_api(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021):
     zip_query = str(zip_query).zfill(5) #convert zip_query to string with 5 digits
     
     #create a new blank column in df_working
@@ -91,7 +91,8 @@ def CallHeatPumpAPI(zip_query, sqft, electricity_price, natgas_price_USD_per_100
 
 if __name__ == '__main__':
    
-    result_tuple = CallHeatPumpAPI(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
+    result_tuple = call_heapump_api(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
+    
     status_quo_electricity_cooling = result_tuple[0]
     status_quo_natgas              = result_tuple[1]
     cost_before_heatpump           = result_tuple[2]

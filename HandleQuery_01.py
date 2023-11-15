@@ -1,11 +1,11 @@
 from flask import request
-from Model_02 import SavingsModel
+from SavingsModel_02 import calculate_savings
 import pandas as pd
 import time
 
 df_working = pd.read_csv('Data/database_main.csv')
 
-def CallModel_01():
+def handle_query():
     t_start = time.time()
 
     # Get the query parameters from the URL
@@ -29,7 +29,7 @@ def CallModel_01():
 
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
-    SavingsModelOutput = SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
+    SavingsModelOutput = calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
     
     run_time = t_start-time.time()
     time_dict = {'Function run time' : run_time,}

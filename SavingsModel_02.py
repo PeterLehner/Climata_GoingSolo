@@ -1,5 +1,5 @@
 import json
-from Heatpumps_01 import CallHeatPumpAPI
+from CallHeatpumpAPI_01 import call_heapump_api
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
@@ -17,7 +17,7 @@ BATTERY_KWH   = BATTERY_KWH * BATTERY_COUNT
 BATTERY_KW    = BATTERY_KW * BATTERY_COUNT
 
 #def SavingsModel(df_working, zip_query, electric_bill_query, sqft_query, heatpump_query): 
-def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query): 
+def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query): 
     state                             = dict_working.get('state')
     avg_electricity_use_kwh           = dict_working.get('avg_electricity_use_kwh')
     electricity_price                 = dict_working.get('electricity_price')
@@ -59,7 +59,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     sqft = sqft_query or median_sqft_zip or median_sqft_state or median_sqft_country
 
     if heatpump_query == 'yes' and sqft_query is not None:
-        result_tuple = CallHeatPumpAPI(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
+        result_tuple = call_heapump_api(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
         status_quo_electricity_cooling = result_tuple[0]
         status_quo_natgas              = result_tuple[1]
         cost_before_heatpump           = result_tuple[2]
@@ -208,7 +208,7 @@ def SavingsModel(dict_working, zip_query, electric_bill_query, loan_term_query, 
     year1_production_savings   = round(year1_production_savings)   if year1_production_savings   is not None else year1_production_savings
     total_production_savings   = round(total_production_savings)   if total_production_savings   is not None else total_production_savings
 
-    loan_term            = round(loan_term)            if loan_term            is not None else loan_term
+    loan_term                  = round(loan_term)            if loan_term            is not None else loan_term
     monthly_interest_payment   = round(monthly_interest_payment)   if monthly_interest_payment   is not None else monthly_interest_payment
     yearly_interest_payment    = round(yearly_interest_payment)    if yearly_interest_payment    is not None else yearly_interest_payment
     year1_net_savings          = round(year1_net_savings)          if year1_net_savings          is not None else year1_net_savings
