@@ -7,17 +7,7 @@ import os
 
 app = Flask(__name__)
 
-#----------------v1/full
-
-@app.route('/v1/full', methods=['GET'])
-def full_endpoint_v1():
-    api_key = get_api_key()
-    if not validate_full_key(api_key):
-        return unauthorized()
-    return handle_query()
-
-#----------------v1/trial
-
+# Setting up redis instance for rate limiting and defining the limiter
 REDIS_ON_RENDER = "redis://red-cl9tkmto7jlc73fjaeog:6379"
 REDIS_ON_MAC    = "rediss://red-cl9tkmto7jlc73fjaeog:P4Eh45g8zA2NUcBbDvdLV3nXs5bGuyEI@oregon-redis.render.com:6379"
 redis_url = REDIS_ON_RENDER if os.getenv('on_render_check') == 'true' else REDIS_ON_MAC
@@ -32,6 +22,15 @@ limiter = Limiter(
     strategy="fixed-window",
 )
 
+
+@app.route('/v1/full', methods=['GET'])
+def full_endpoint_v1():
+    api_key = get_api_key()
+    if not validate_full_key(api_key):
+        return unauthorized()
+    return handle_query()
+
+
 @app.route('/v1/trial', methods=['GET'])
 @limiter.limit("2 per hour")
 def trial_endpoint_v2():
@@ -39,6 +38,7 @@ def trial_endpoint_v2():
     if not validate_trial_key(api_key):
         return unauthorized()
     return handle_query()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
