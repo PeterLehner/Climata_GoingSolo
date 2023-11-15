@@ -7,15 +7,4 @@ Trash/
 Data/.DS_Store
 Data/Zips/.DS_Store
 
-_example_api.py
-_testing_workspace.py
-APlengine_01.py
-APlengine_02.py
-APlengine_03.py
-Model_01.py
-
-redistest.py
-redistest2.py
-RequestAPI.py
-
 local_*
