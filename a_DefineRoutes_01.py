@@ -1,8 +1,8 @@
 from flask import Flask, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from HandleKeys_01 import validate_trial_key, validate_full_key, get_api_key, unauthorized
-from HandleQuery_01 import handle_query
+from b_HandleKeys_01 import validate_trial_key, validate_full_key, get_api_key, unauthorized
+from b_HandleQuery_01 import handle_query
 import os
 
 app = Flask(__name__)
