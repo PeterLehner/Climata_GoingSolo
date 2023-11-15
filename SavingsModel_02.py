@@ -43,8 +43,8 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     SREC_USD_kwh                      = dict_working.get('SREC_USD_kwh')
     net_metering                      = dict_working.get('net_metering')
 
-    loan_term     = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
-    loan_rate     = float(loan_rate_query) if loan_rate_query is not None else DEFAULT_INTEREST_RATE
+    loan_term = float(loan_term_query) if loan_term_query is not None else DEFAULT_LOAN_TERM
+    loan_rate = float(loan_rate_query) if loan_rate_query is not None else DEFAULT_INTEREST_RATE
 
     # Adjust electricity use
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -147,10 +147,9 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     battery_incentives = 0 #Add blank column for battery incentives
     net_battery_cost = 0 # Add blank column for the cost of the battery after incentives
 
-    # If state has net metering, then we assume the homeowners get batteries, factoring in a 30% IRA federal rebate
+    # If state doesn't have net metering, we assume the homeowner gets batterie. Some states have additional rebate programs
     if net_metering == 0:
-        net_battery_cost = BATTERY_COST*(1-0.3)
-        state = state # Some states have additional rebate programs
+        net_battery_cost = BATTERY_COST*(1-0.3) #30% IRA rebae
         if state == 'CA':
             net_battery_cost = net_battery_cost - BATTERY_KWH*150
         elif state == 'HI':
@@ -161,9 +160,8 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
             net_battery_cost = net_battery_cost - min(BATTERY_KWH*300, BATTERY_COST*0.4, 2500)
         elif state == 'NV':
             net_battery_cost = net_battery_cost - min(BATTERY_KWH*95, BATTERY_COST*0.5, 3000)
-        battery_incentives = BATTERY_COST - net_battery_cost
-        net_estimated_cost = net_estimated_cost + net_battery_cost
-        estimated_battery_cost = BATTERY_COST
+        battery_incentives     = BATTERY_COST - net_battery_cost
+        net_estimated_cost     = net_estimated_cost + net_battery_cost
 
 
     # Calculate loan payments and net savings
@@ -177,25 +175,20 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
 
     # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
-    if heatpump_query.lower() == "no": # Overwrite all values in the above keys to be None
+    zip_query = str(zip_query).zfill(5) #convert zip_query back to string with length 5 if the integer is only 4 digits
+    
+    if heatpump_query.lower() == "no":
         heatpump_electricity = None
         cost_before_heatpump = None
         cost_after_heatpump = None
         heatpump_savings = None
 
-    #convert zip_query back to string with length 5 if the integer is only 4 digits
-    zip_query = str(zip_query).zfill(5)
-
-
-    # Round the variables with inline if statements
     recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
-    loan_rate            = round(loan_rate, 3) if loan_rate            is not None else loan_rate
-    
+    loan_rate                  = round(loan_rate, 3) if loan_rate is not None else loan_rate
     electric_bill_query        = round(electric_bill_query)        if electric_bill_query        is not None else electric_bill_query
     sqft                       = round(sqft)                       if sqft                       is not None else sqft
     electricity_use_kwh        = round(electricity_use_kwh)        if electricity_use_kwh        is not None else electricity_use_kwh
     system_output_annual       = round(system_output_annual)       if system_output_annual       is not None else system_output_annual
-    
     estimated_cost             = round(estimated_cost)             if estimated_cost             is not None else estimated_cost
     federal_incentive          = round(federal_incentive)          if federal_incentive          is not None else federal_incentive
     state_incentive_by_W       = round(state_incentive_by_W)       if state_incentive_by_W       is not None else state_incentive_by_W
@@ -203,20 +196,18 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     net_battery_cost           = round(net_battery_cost)           if net_battery_cost           is not None else net_battery_cost
     battery_incentives         = round(battery_incentives)         if battery_incentives         is not None else battery_incentives
     net_estimated_cost         = round(net_estimated_cost)         if net_estimated_cost         is not None else net_estimated_cost
-    
     net_metering               = round(net_metering)               if net_metering               is not None else net_metering
     year1_production_savings   = round(year1_production_savings)   if year1_production_savings   is not None else year1_production_savings
     total_production_savings   = round(total_production_savings)   if total_production_savings   is not None else total_production_savings
-
     loan_term                  = round(loan_term)            if loan_term            is not None else loan_term
     monthly_interest_payment   = round(monthly_interest_payment)   if monthly_interest_payment   is not None else monthly_interest_payment
     yearly_interest_payment    = round(yearly_interest_payment)    if yearly_interest_payment    is not None else yearly_interest_payment
     year1_net_savings          = round(year1_net_savings)          if year1_net_savings          is not None else year1_net_savings
-    total_net_savings          = round(total_net_savings)          if total_net_savings          is not None else total_net_savings  # Assuming 'total_net_savings' is the cumulative savings
-    
+    total_net_savings          = round(total_net_savings)          if total_net_savings          is not None else total_net_savings
     cost_before_heatpump       = round(cost_before_heatpump)       if cost_before_heatpump       is not None else cost_before_heatpump
     cost_after_heatpump        = round(cost_after_heatpump)        if cost_after_heatpump        is not None else cost_after_heatpump
     heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
+
 
     result_JSON                                 = {
         'query'                                 : {
@@ -244,7 +235,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
             'has_battery'                       : 'yes' if net_metering == 0 else 'no',
             'cost_detail'                       : {
                 'estimated_solar_cost'          : estimated_cost,
-                'estimated_battery_cost'        : estimated_battery_cost,
+                'estimated_battery_cost'        : BATTERY_COST,
                 'incentives'                    : {
                     'federal_incentive'         : federal_incentive,
                     'state_incentive_by_watt'   : state_incentive_by_W,
@@ -296,6 +287,6 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         },
     }
 
-    result_JSON_str = json.dumps(result_JSON, indent=2)
+    result_JSON_str = json.dumps(result_JSON, indent=4)
 
     return result_JSON_str

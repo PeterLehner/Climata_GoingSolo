@@ -41,4 +41,5 @@ def trial_endpoint_v2():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_state = False if os.getenv('on_render_check') == 'true' else True    
+    app.run(debug=debug_state)
