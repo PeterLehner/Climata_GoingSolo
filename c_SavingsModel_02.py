@@ -160,9 +160,10 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
             net_battery_cost = net_battery_cost - min(BATTERY_KWH*300, BATTERY_COST*0.4, 2500)
         elif state == 'NV':
             net_battery_cost = net_battery_cost - min(BATTERY_KWH*95, BATTERY_COST*0.5, 3000)
-        battery_incentives = BATTERY_COST - net_battery_cost
-        net_estimated_cost = net_estimated_cost + net_battery_cost
-        total_incentives   = federal_incentive + state_incentive_by_percent + state_incentive_by_W + battery_incentives
+
+    battery_incentives = BATTERY_COST - net_battery_cost
+    net_estimated_cost = net_estimated_cost + net_battery_cost
+    total_incentives   = federal_incentive + state_incentive_by_percent + state_incentive_by_W + battery_incentives
 
 
     # Calculate loan payments and net savings
