@@ -36,7 +36,7 @@ limiter = Limiter(
 )
 
 @app.route('/trial', methods=['GET'])
-@limiter.limit("1 per minute") #has to go after the route decorator
+@limiter.limit("1 per hour") #has to go after the route decorator
 def trial_endpoint():
     api_key = request.headers.get('X-API-Key')
     if not api_key or not validate_trial_key(api_key):
@@ -44,7 +44,7 @@ def trial_endpoint():
     return CallModel()
 
 @app.route('/full', methods=['GET'])
-@limiter.limit("100 per minute") #has to go after the route decorator
+@limiter.limit("1000 per hour") #has to go after the route decorator
 def full_endpoint():
     api_key = request.headers.get('X-API-Key')
     if not api_key or not validate_full_key(api_key):
