@@ -187,6 +187,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
 
     recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
     loan_rate                  = round(loan_rate, 3) if loan_rate is not None else loan_rate
+
     electric_bill_query        = round(electric_bill_query)        if electric_bill_query        is not None else electric_bill_query
     sqft                       = round(sqft)                       if sqft                       is not None else sqft
     electricity_use_kwh        = round(electricity_use_kwh)        if electricity_use_kwh        is not None else electricity_use_kwh
@@ -201,7 +202,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     net_metering               = round(net_metering)               if net_metering               is not None else net_metering
     year1_production_savings   = round(year1_production_savings)   if year1_production_savings   is not None else year1_production_savings
     total_production_savings   = round(total_production_savings)   if total_production_savings   is not None else total_production_savings
-    loan_term                  = round(loan_term)            if loan_term            is not None else loan_term
+    loan_term                  = round(loan_term)                  if loan_term                  is not None else loan_term
     monthly_interest_payment   = round(monthly_interest_payment)   if monthly_interest_payment   is not None else monthly_interest_payment
     yearly_interest_payment    = round(yearly_interest_payment)    if yearly_interest_payment    is not None else yearly_interest_payment
     year1_net_savings          = round(year1_net_savings)          if year1_net_savings          is not None else year1_net_savings
@@ -209,7 +210,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     cost_before_heatpump       = round(cost_before_heatpump)       if cost_before_heatpump       is not None else cost_before_heatpump
     cost_after_heatpump        = round(cost_after_heatpump)        if cost_after_heatpump        is not None else cost_after_heatpump
     heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
-
+    total_incentives           = round(total_incentives)           if total_incentives           is not None else total_incentives
 
     result_JSON                                 = {
         'query'                                 : {
