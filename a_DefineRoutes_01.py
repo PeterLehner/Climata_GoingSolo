@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from b_HandleKeys_01 import validate_trial_key, validate_full_key, get_api_key, unauthorized
-from b_HandleQuery_01 import handle_query
+#from b_HandleQuery_01 import handle_query
+from b_HandleQuery_02 import handle_query
 import os
 
 app = Flask(__name__)
@@ -30,6 +31,13 @@ def full_endpoint_v1():
         return unauthorized()
     return handle_query()
     #return jsonify(handle_query())
+
+@app.route('/v1/pklprivate', methods=['GET'])
+def private_endpoint_v1():
+    api_key = get_api_key()
+    if not validate_full_key(api_key):
+        return unauthorized()
+    return handle_query()
 
 
 @app.route('/v1/trial', methods=['GET'])

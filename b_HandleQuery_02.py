@@ -1,5 +1,6 @@
 from flask import request
-from c_SavingsModel_02 import calculate_savings
+from c_SavingsModel_03 import calculate_savings
+from c_ProcessModelOutput_01 import process_model_output
 import pandas as pd
 import time
 
@@ -32,10 +33,7 @@ def handle_query():
 
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
-    SavingsModelOutput = calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
-    
-    run_time = t_start-time.time()
-    time_dict = {'Function run time' : run_time,}
-    #return time_dict
+    SavingsModelOutput_raw = calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
+    SavingsModelOutput     = process_model_output(SavingsModelOutput_raw)
 
     return SavingsModelOutput

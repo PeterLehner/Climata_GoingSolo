@@ -8,3 +8,6 @@ Data/.DS_Store
 Data/Zips/.DS_Store
 
 local_*
+
+b_HandleQuery_01.py
+c_SavingsModel_02.py
