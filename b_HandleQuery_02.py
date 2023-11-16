@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from c_SavingsModel_03 import calculate_savings
 from c_ProcessModelOutput_01 import process_model_output
 import pandas as pd
@@ -19,6 +19,7 @@ def handle_query():
 
     path = request.path
     print(f"\npath: {path}\n")
+    # TO DO: Can use this to check for api keys (instead of in each route in the DefineRoutes file)
 
     # Error handling
     if zip_query is None:
@@ -28,12 +29,11 @@ def handle_query():
     zip_query           = int(zip_query) if zip_query is not None else None
     electric_bill_query = float(electric_bill_query) if electric_bill_query is not None else None
     sqft_query          = float(sqft_query) if sqft_query is not None else None
-    
     heatpump_query = heatpump_query if heatpump_query is not None else "no"
 
     dict_working = df_working[df_working['zip'] == zip_query].squeeze().to_dict()  # Read the row with the matching zip_query as a dictionary
 
-    SavingsModelOutput_raw = calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
-    SavingsModelOutput     = process_model_output(SavingsModelOutput_raw)
-
-    return SavingsModelOutput
+    SavingsModelOutput_all = calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_query, loan_rate_query, heatpump_query, sqft_query)
+    SavingsModelOutput_cut = process_model_output(SavingsModelOutput_all)
+        
+    return SavingsModelOutput_cut

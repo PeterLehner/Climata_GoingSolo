@@ -71,7 +71,6 @@ def process_model_output(savings_model_output_raw):
     year1_net_savings                 = savings_model_output_raw.get('year1_net_savings')
     total_net_savings                 = savings_model_output_raw.get('total_net_savings')
     
-        # Prep results for output ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     
     zip_query = str(zip_query).zfill(5) #convert zip_query back to string with length 5 if the integer is only 4 digits
     
@@ -124,8 +123,9 @@ def process_model_output(savings_model_output_raw):
         'location'                              : {
             'state'                             : state,
         },
-        'electricity_section'                   : {
+        'electricity'                           : {
             'electricity_use_kwh'               : electricity_use_kwh,
+            'electricity_price'                 : electricity_price,
         },
         'solar'                                 : {
             'recommended_solar_size'            : recommended_system_size_KW,
@@ -187,6 +187,5 @@ def process_model_output(savings_model_output_raw):
         },
     }
 
-    result_JSON_final = json.dumps(result_JSON, indent=4)
-
-    return result_JSON_final
+    result_JSON_str = json.dumps(result_JSON, indent=4)
+    return result_JSON_str

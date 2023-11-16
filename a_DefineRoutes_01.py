@@ -30,15 +30,6 @@ def full_endpoint_v1():
     if not validate_full_key(api_key):
         return unauthorized()
     return handle_query()
-    #return jsonify(handle_query())
-
-@app.route('/v1/pklprivate', methods=['GET'])
-def private_endpoint_v1():
-    api_key = get_api_key()
-    if not validate_full_key(api_key):
-        return unauthorized()
-    return handle_query()
-
 
 @app.route('/v1/trial', methods=['GET'])
 @limiter.limit("2 per hour")
