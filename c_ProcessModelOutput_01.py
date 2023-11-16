@@ -80,6 +80,7 @@ def process_model_output(savings_model_output_raw):
         cost_after_heatpump = None
         heatpump_savings = None
 
+    electricity_price          = round(electricity_price, 3) if electricity_price is not None else electricity_price
     recommended_system_size_KW = round(recommended_system_size_KW, 1) if recommended_system_size_KW is not None else recommended_system_size_KW
     loan_rate                  = round(loan_rate, 3) if loan_rate is not None else loan_rate
 
@@ -105,6 +106,7 @@ def process_model_output(savings_model_output_raw):
     cost_before_heatpump       = round(cost_before_heatpump)       if cost_before_heatpump       is not None else cost_before_heatpump
     cost_after_heatpump        = round(cost_after_heatpump)        if cost_after_heatpump        is not None else cost_after_heatpump
     heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
+    heatpump_electricity       = round(heatpump_electricity)       if heatpump_electricity       is not None else heatpump_electricity
     total_incentives           = round(total_incentives)           if total_incentives           is not None else total_incentives
 
     result_JSON                                 = {
@@ -124,6 +126,8 @@ def process_model_output(savings_model_output_raw):
             'state'                             : state,
         },
         'electricity'                           : {
+            'non_heatpump_electricity'          : electricity_use_kwh - heatpump_electricity if heatpump_electricity is not None else electricity_use_kwh,
+            'heatpump_electricity'              : heatpump_electricity,
             'electricity_use_kwh'               : electricity_use_kwh,
             'electricity_price'                 : electricity_price,
         },
