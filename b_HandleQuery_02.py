@@ -1,13 +1,15 @@
-from flask import request, jsonify
+import pandas as pd
+from b_HandleKeys_01 import validate_key
+from flask import request
 from c_SavingsModel_03 import calculate_savings
 from c_ProcessModelOutput_01 import process_model_output
-import pandas as pd
-import time
 
 df_working = pd.read_csv('Data/database_main.csv')
 
 def handle_query():
-    t_start = time.time()
+
+    if validate_key() != True:
+        return validate_key()
 
     # Get the query parameters from the URL
     zip_query           = request.args.get('zip_query')
@@ -16,10 +18,6 @@ def handle_query():
     loan_rate_query     = request.args.get('loan_rate_query') # e.g,. 0.06 for 6%
     sqft_query          = request.args.get('sqft_query')
     heatpump_query      = request.args.get('heatpump_query') # "yes" or "no"
-
-    path = request.path
-    print(f"\npath: {path}\n")
-    # TO DO: Can use this to check for api keys (instead of in each route in the DefineRoutes file)
 
     # Error handling
     if zip_query is None:

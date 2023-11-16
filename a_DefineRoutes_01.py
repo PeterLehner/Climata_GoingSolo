@@ -1,8 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from b_HandleKeys_01 import validate_trial_key, validate_full_key, get_api_key, unauthorized
-#from b_HandleQuery_01 import handle_query
 from b_HandleQuery_02 import handle_query
 import os
 
@@ -26,17 +24,11 @@ limiter = Limiter(
 
 @app.route('/v1/full', methods=['GET'])
 def full_endpoint_v1():
-    api_key = get_api_key()
-    if not validate_full_key(api_key):
-        return unauthorized()
     return handle_query()
 
 @app.route('/v1/trial', methods=['GET'])
-@limiter.limit("2 per hour")
+@limiter.limit("200 per hour")
 def trial_endpoint_v2():
-    api_key = get_api_key()
-    if not validate_trial_key(api_key):
-        return unauthorized()
     return handle_query()
 
 
