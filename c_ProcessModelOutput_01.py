@@ -1,5 +1,6 @@
 # Purpose: Process the model output from the savings model and format it for the API response
 import json
+import numpy as np
 
 def process_model_output(savings_model_output_raw):
     ENERGY_PRICE_GROWTH_RATE          = savings_model_output_raw.get('ENERGY_PRICE_GROWTH_RATE')
@@ -70,7 +71,14 @@ def process_model_output(savings_model_output_raw):
     yearly_interest_payment           = savings_model_output_raw.get('yearly_interest_payment')
     year1_net_savings                 = savings_model_output_raw.get('year1_net_savings')
     total_net_savings                 = savings_model_output_raw.get('total_net_savings')
+
+    # I think zips with no lat lon state (and other fields) are actually *former* zip codes, so exclude
+    if not isinstance(state, (str)) or state == 0 or state is None or state == "0":
+        return None
     
+    # Without output_annual, we can't calculate anything
+    if isinstance(output_annual, (str)) or output_annual == 0 or output_annual is None or output_annual == "0" or output_annual == "NaN" or np.isnan(output_annual):
+        return None
     
     zip_query = str(zip_query).zfill(5) #convert zip_query back to string with length 5 if the integer is only 4 digits
     
@@ -108,6 +116,7 @@ def process_model_output(savings_model_output_raw):
     heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
     heatpump_electricity       = round(heatpump_electricity)       if heatpump_electricity       is not None else heatpump_electricity
     total_incentives           = round(total_incentives)           if total_incentives           is not None else total_incentives
+
 
     result_JSON                                 = {
         'query'                                 : {

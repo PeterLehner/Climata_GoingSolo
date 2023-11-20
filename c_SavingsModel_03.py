@@ -1,4 +1,5 @@
 from d_CallHeatpumpAPI_01 import call_heapump_api
+import numpy as np
 
 #Key assumptions for calculating savings net of loan payments
 ENERGY_PRICE_GROWTH_RATE = 1.022
@@ -53,7 +54,15 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
 
     # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    sqft = sqft_query or median_sqft_zip or median_sqft_state or median_sqft_country
+
+    if sqft_query is not None and not np.isnan(sqft_query):
+        sqft = sqft_query
+    elif median_sqft_zip is not None and not np.isnan(median_sqft_zip):
+        sqft = median_sqft_zip
+    elif median_sqft_state is not None and not np.isnan(median_sqft_state):
+        sqft = median_sqft_state
+    else:
+        sqft = median_sqft_country
 
     if heatpump_query == 'yes' and sqft_query is not None:
         result_tuple = call_heapump_api(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
