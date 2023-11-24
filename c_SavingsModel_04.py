@@ -58,9 +58,6 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     else:
         electricity_use_kwh = avg_electricity_use_kwh # Else, use the average electric use for the zip code
 
-    print('electricity_use_kwh: ', round(electricity_use_kwh))
-    print('avg_electricity_use_kwh: ', round(avg_electricity_use_kwh))
-
     # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
