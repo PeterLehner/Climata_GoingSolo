@@ -11,6 +11,9 @@ DEFAULT_INTEREST_RATE = 0.09
 SLOPE_SQFT2KWH = 2.5286
 SLOPE_KWH2SQFT = 0.0796
 
+SLOPE_SQFT2NATGAS = 0.244719 # Slope of status quo natgas use vs sqft
+SLOPE_SQFT2SQE    = 0.520765 # Slope of status quo electricity cooling use vs sqft
+SLOPE_HPELEC      = 1.69223  # Slope of heat pump electricity use vs sqft
 
 BATTERY_COUNT = 1
 BATTERY_COST  = 14200 # Tesla Powerwall
@@ -86,27 +89,64 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         sqft = max(sqft, median_sqft*0.25) 
         sqft = min(sqft, median_sqft*3)
 
-        print(f"avg_electric_bill_monthly: {round(avg_electric_bill_monthly,0)}")
-        print(f"INPUT electric_bill_query: {electric_bill_query}")
-        print("\n")
-        print(f"avg_electricity_use_kwh  : {avg_electricity_use_kwh}")
-        print(f"INPUT electricity_use_kwh: {round(electricity_use_kwh,0)}")
+        # print(f"avg_electric_bill_monthly: {round(avg_electric_bill_monthly,0)}")
+        # print(f"INPUT electric_bill_query: {electric_bill_query}")
+        # print("\n")
+        # print(f"avg_electricity_use_kwh  : {avg_electricity_use_kwh}")
+        # print(f"INPUT electricity_use_kwh: {round(electricity_use_kwh,0)}")
         print("\n")
         print(f"median_sqft : {median_sqft}")
-        print(f"OUTPUT: sqft: {round(sqft,0)}")
+        # print(f"OUTPUT: sqft: {round(sqft,0)}")
     else:
         sqft = sqft_query
+
+    print(f"sqft: {round(sqft,0)}")
 
     # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if heatpump_query == 'yes':
-        result_tuple = call_heapump_api(zip_query, sqft, electricity_price, natgas_price_USD_per_1000_cf_2021)
-        status_quo_electricity_cooling = result_tuple[0]
-        status_quo_natgas              = result_tuple[1]
-        cost_before_heatpump           = result_tuple[2]
-        heatpump_electricity           = result_tuple[3]
-        cost_after_heatpump            = result_tuple[4]
-        heatpump_savings               = result_tuple[5]
+        intercept_ng = status_quo_natgas - SLOPE_SQFT2NATGAS*median_sqft
+        adjusted_status_quo_natgas = SLOPE_SQFT2NATGAS*sqft + intercept_ng
+
+        intercept_SQE = status_quo_electricity_cooling - SLOPE_SQFT2SQE*median_sqft
+        adjusted_status_quo_electricity_cooling = SLOPE_SQFT2SQE*sqft + intercept_SQE
+
+        intercept_HPE = heatpump_electricity - SLOPE_HPELEC*median_sqft
+        adjusted_heatpump_electricity = SLOPE_HPELEC*sqft + intercept_HPE
+
+        cost_before_heatpump = adjusted_status_quo_electricity_cooling * electricity_price + adjusted_status_quo_natgas * natgas_price_USD_per_1000_cf_2021/10 #Divide by 10 to convert to $/100cf
+        cost_after_heatpump = adjusted_heatpump_electricity * electricity_price
+        adjusted_heatpump_savings = cost_before_heatpump - cost_after_heatpump
+
+        # print("\n")
+        # print(f"status_quo_electricity_cooling:          {round(status_quo_electricity_cooling,0)}")
+        # print(f"adjusted_status_quo_electricity_cooling: {round(adjusted_status_quo_electricity_cooling,0)}")
+
+        # print("\n")
+        # print(f"status_quo_natgas:          {round(status_quo_natgas,0)}")
+        # print(f"adjusted_status_quo_natgas: {round(adjusted_status_quo_natgas,0)}")
+
+        # print("\n")
+        # print(f"electricity_price: {electricity_price}")
+        # print(f"natgas_price_USD_per_1000_cf_2021: {natgas_price_USD_per_1000_cf_2021}")
+
+        print("\n")
+        print(f"avg_cost_before_heatpump: {round(avg_cost_before_heatpump,0)}")
+        print(f"cost_before_heatpump:     {round(cost_before_heatpump,0)}")
+        
+        print("\n")
+        print(f"avg_cost_after_heatpump:  {round(avg_cost_after_heatpump,0)}")
+        print(f"cost_after_heatpump:      {round(cost_after_heatpump,0)}")
+        
+        print("\n")
+        print(f"heatpump_electricity:          {round(heatpump_electricity,0)}")
+        print(f"adjusted_heatpump_electricity: {round(adjusted_heatpump_electricity,0)}")
+
+        print("\n")
+        print(f"avg_heatpump_savings:      {round(avg_heatpump_savings,0)}")
+        print(f"adjusted_heatpump_savings: {round(adjusted_heatpump_savings,0)}")
+
+
     else: #just use the Kelvin results for the average sqft for the zip code
         cost_before_heatpump = avg_cost_before_heatpump
         cost_after_heatpump = avg_cost_after_heatpump
