@@ -118,35 +118,8 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         cost_after_heatpump = adjusted_heatpump_electricity * electricity_price
         adjusted_heatpump_savings = cost_before_heatpump - cost_after_heatpump
 
-        # print("\n")
-        # print(f"status_quo_electricity_cooling:          {round(status_quo_electricity_cooling,0)}")
-        # print(f"adjusted_status_quo_electricity_cooling: {round(adjusted_status_quo_electricity_cooling,0)}")
-
-        # print("\n")
-        # print(f"status_quo_natgas:          {round(status_quo_natgas,0)}")
-        # print(f"adjusted_status_quo_natgas: {round(adjusted_status_quo_natgas,0)}")
-
-        # print("\n")
-        # print(f"electricity_price: {electricity_price}")
-        # print(f"natgas_price_USD_per_1000_cf_2021: {natgas_price_USD_per_1000_cf_2021}")
-
-        print("\n")
-        print(f"avg_cost_before_heatpump: {round(avg_cost_before_heatpump,0)}")
-        print(f"cost_before_heatpump:     {round(cost_before_heatpump,0)}")
+        heatpump_savings = adjusted_heatpump_savings
         
-        print("\n")
-        print(f"avg_cost_after_heatpump:  {round(avg_cost_after_heatpump,0)}")
-        print(f"cost_after_heatpump:      {round(cost_after_heatpump,0)}")
-        
-        print("\n")
-        print(f"heatpump_electricity:          {round(heatpump_electricity,0)}")
-        print(f"adjusted_heatpump_electricity: {round(adjusted_heatpump_electricity,0)}")
-
-        print("\n")
-        print(f"avg_heatpump_savings:      {round(avg_heatpump_savings,0)}")
-        print(f"adjusted_heatpump_savings: {round(adjusted_heatpump_savings,0)}")
-
-
     else: #just use the Kelvin results for the average sqft for the zip code
         cost_before_heatpump = avg_cost_before_heatpump
         cost_after_heatpump = avg_cost_after_heatpump
