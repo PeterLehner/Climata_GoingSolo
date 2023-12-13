@@ -29,7 +29,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     electricity_price                 = dict_working.get('electricity_price')
     output_annual                     = dict_working.get('output_annual')
     sizing_ratio                      = dict_working.get('sizing_ratio')
-    avg_electric_bill_monthly        = dict_working.get('avg_electric_bill_monthly')
+    avg_electric_bill_monthly         = dict_working.get('avg_electric_bill_monthly')
     natgas_price_USD_per_1000_cf_2021 = dict_working.get('natgas_price_USD_per_1000_cf_2021')
     median_sqft_zip                   = dict_working.get('median_sqft_zip')
     median_sqft_state                 = dict_working.get('median_sqft_state')
