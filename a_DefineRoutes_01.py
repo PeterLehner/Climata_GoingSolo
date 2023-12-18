@@ -26,9 +26,9 @@ limiter = Limiter(
 def full_endpoint_v1():
     return handle_query()
 
-@app.route('/v1/trial', methods=['GET'])
-@limiter.limit("200 per hour")
-def trial_endpoint_v2():
+@app.route('/v1/bhr', methods=['GET'])
+@limiter.limit("20000 per month")
+def BHR_endpoint_v1():
     return handle_query()
 
 
