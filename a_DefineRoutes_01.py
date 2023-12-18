@@ -26,11 +26,10 @@ limiter = Limiter(
 def full_endpoint_v1():
     return handle_query()
 
-@app.route('/v1/bhr', methods=['GET'])
+@app.route('/v1/model', methods=['GET'])
 @limiter.limit("20000 per month")
 def BHR_endpoint_v1():
     return handle_query()
-
 
 if __name__ == '__main__':
     debug_state = False if os.getenv('on_render_check') == 'true' else True    
