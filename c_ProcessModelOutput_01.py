@@ -71,6 +71,7 @@ def process_model_output(savings_model_output_raw):
     yearly_interest_payment           = savings_model_output_raw.get('yearly_interest_payment')
     year1_net_savings                 = savings_model_output_raw.get('year1_net_savings')
     total_net_savings                 = savings_model_output_raw.get('total_net_savings')
+    total_savings_no_loan             = savings_model_output_raw.get('total_savings_no_loan')
 
     # I think zips with no lat lon state (and other fields) are actually *former* zip codes, so exclude
     if not isinstance(state, (str)) or state == 0 or state is None or state == "0":
@@ -116,6 +117,7 @@ def process_model_output(savings_model_output_raw):
     heatpump_savings           = round(heatpump_savings)           if heatpump_savings           is not None else heatpump_savings
     heatpump_electricity       = round(heatpump_electricity)       if heatpump_electricity       is not None else heatpump_electricity
     total_incentives           = round(total_incentives)           if total_incentives           is not None else total_incentives
+    total_savings_no_loan      = round(total_savings_no_loan)      if total_savings_no_loan      is not None else total_savings_no_loan
 
 
     result_JSON                                 = {
@@ -167,7 +169,7 @@ def process_model_output(savings_model_output_raw):
                 'yearly_interest_payment'       : yearly_interest_payment,
                 },
             'savings_detail'                    : {
-                'production_savings'            : [
+                'production_savings': [
                     {
                         'year' : 1,
                         'value': year1_production_savings,
@@ -175,6 +177,12 @@ def process_model_output(savings_model_output_raw):
                     {
                         'year' : TOTAL_SAVINGS_YEARS,
                         'value': total_production_savings,
+                    },
+                ],
+                f'{TOTAL_SAVINGS_YEARS}_year_savings_no_loan': [
+                    {
+                        'year' : TOTAL_SAVINGS_YEARS,
+                        'value': total_savings_no_loan,
                     },
                 ],
                 'net_savings': [

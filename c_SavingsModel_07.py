@@ -219,6 +219,8 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     net_estimated_cost = net_estimated_cost + net_battery_cost
     total_incentives   = federal_incentive + state_incentive_by_percent + state_incentive_by_W + battery_incentives
 
+    # Total 20 years savings if homeowner pays in cash
+    total_savings_no_loan = total_production_savings - net_estimated_cost
 
     # Calculate loan payments and net savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
