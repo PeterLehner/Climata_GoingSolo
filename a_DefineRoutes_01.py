@@ -21,11 +21,12 @@ limiter = Limiter(
     strategy="fixed-window",
 )
 
-
+# Users: Spring EQ Frontend
 @app.route('/v1/full', methods=['GET'])
 def full_endpoint_v1():
     return handle_query()
 
+# Users: BHR
 @app.route('/v1/model', methods=['GET'])
 @limiter.limit("20000 per month")
 def BHR_endpoint_v1():

@@ -163,6 +163,15 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
         year += 1
 
+    # MASSACHUSETTS has a complicated SREC. SOURCE: https://www.energysage.com/solar/srecs/solar-massachusetts-renewable-target-smart-massachusetts-srec-replacement-program/
+    if state == 'MA':
+        total_production_savings = 0
+        TEMP_net_metering_price = electricity_price
+        while year <= TOTAL_SAVINGS_YEARS:
+            total_production_savings = total_production_savings + NetMetering_eligible_production * max(TEMP_net_metering_price, SREC_USD_kwh)
+            TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
+            year += 1
+
     # ILLINOIS has a complicated REC program where they prepurchase 15 years of recs. SOURCE: https://www.solarreviews.com/blog/illinois-renews-best-solar-incentive
     if state == 'IL':
         if recommended_system_size_KW <= 10:
