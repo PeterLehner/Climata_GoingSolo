@@ -167,6 +167,7 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
     if state == 'MA':
         total_production_savings = 0
         TEMP_net_metering_price = electricity_price
+        year = 1 
         while year <= TOTAL_SAVINGS_YEARS:
             total_production_savings = total_production_savings + NetMetering_eligible_production * max(TEMP_net_metering_price, SREC_USD_kwh)
             TEMP_net_metering_price = electricity_price * ENERGY_PRICE_GROWTH_RATE**year #Update the price according to the rate of inflation. ** is python for exponent
