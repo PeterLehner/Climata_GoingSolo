@@ -72,10 +72,10 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         electricity_use_kwh = max(electricity_use_kwh, avg_electricity_use_kwh*0.25) # If estimated electric use is less than 25% of the average, then set it to 25% of the average
         electricity_use_kwh = min(electricity_use_kwh, avg_electricity_use_kwh*2) # If estimated electric use is greater than 200% of the average, then set it to 200% of the average
 
-        print(f"median_sqft: {median_sqft}")
-        print(f'sqft_query: {sqft_query}')
-        print(f"avg_electricity_use_kwh: {avg_electricity_use_kwh}")
-        print(f"electricity_use_kwh: {round(electricity_use_kwh,0)}")
+        # print(f"median_sqft: {median_sqft}")
+        # print(f'sqft_query: {sqft_query}')
+        # print(f"avg_electricity_use_kwh: {avg_electricity_use_kwh}")
+        # print(f"electricity_use_kwh: {round(electricity_use_kwh,0)}")
     else:
         electricity_use_kwh = avg_electricity_use_kwh # Else, use the average electric use for the zip code
 
@@ -94,13 +94,13 @@ def calculate_savings(dict_working, zip_query, electric_bill_query, loan_term_qu
         # print("\n")
         # print(f"avg_electricity_use_kwh  : {avg_electricity_use_kwh}")
         # print(f"INPUT electricity_use_kwh: {round(electricity_use_kwh,0)}")
-        print("\n")
-        print(f"median_sqft : {median_sqft}")
+        # print("\n")
+        # print(f"median_sqft : {median_sqft}")
         # print(f"OUTPUT: sqft: {round(sqft,0)}")
     else:
         sqft = sqft_query
 
-    print(f"sqft: {round(sqft,0)}")
+    # print(f"sqft: {round(sqft,0)}")
 
     # Calculate heat pump savings
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
